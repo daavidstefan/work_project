@@ -34,28 +34,26 @@ export default function ProjectDetailsClient({
 
   return (
     <div className="grid gap-6 lg:grid-cols-3 p-6">
-      {/* LEFT: Project card */}
-      <Card className="lg:col-span-1 h-[calc(92vh-3rem)] overflow-y-auto">
+      {/* titlu + descriere */}
+      <Card className="lg:col-span-1 h-[calc(93vh-3rem)] overflow-y-auto">
         <CardHeader>
-          <CardTitle>{project.name}</CardTitle>
+          <CardTitle className="text-center text-lg">{project.name}</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
           {project.details}
         </CardContent>
       </Card>
 
-      {/* RIGHT: Features table + Generate key */}
+      {/* lista features + sectiunea de generate key */}
       <div className="lg:col-span-2 flex flex-col gap-6">
-        {/* Features */}
+        {/* lista features */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Features</CardTitle>
+            <CardTitle className="text-center text-lg">Servicii</CardTitle>
           </CardHeader>
 
           <CardContent className="p-4">
-            {/* wrapper mai îngust + outline */}
             <div className="mx-auto w-[95%] rounded-md border">
-              {/* scroll dacă depășește 50% din viewport */}
               <div className="max-h-[38vh] overflow-auto">
                 <Table
                   className="
@@ -67,7 +65,6 @@ export default function ProjectDetailsClient({
     [&_th:last-child]:text-right [&_td:last-child]:text-right
   "
                 >
-                  {/* optional, dar ok de păstrat */}
                   <colgroup>
                     <col className="w-1/2" />
                     <col className="w-1/2" />
@@ -75,8 +72,8 @@ export default function ProjectDetailsClient({
 
                   <TableHeader className="sticky top-0 bg-background">
                     <TableRow>
-                      <TableHead className="w-1/2">Feature</TableHead>
-                      <TableHead className="w-1/2">Select</TableHead>
+                      <TableHead className="w-1/2">Denumire</TableHead>
+                      <TableHead className="w-1/2">Alege</TableHead>
                     </TableRow>
                   </TableHeader>
 
@@ -88,27 +85,28 @@ export default function ProjectDetailsClient({
                           key={f.id}
                           data-state={checked ? "selected" : undefined}
                           className="cursor-pointer hover:bg-accent/40 data-[state=selected]:bg-accent/60 transition-colors"
-                          onClick={() => toggle(f.id, !checked)} // click pe tot rândul
+                          onClick={() => {
+                            toggle(f.id, !checked);
+                          }}
                         >
                           <TableCell className="w-1/2">
                             <div className="font-medium">{f.label}</div>
-                            <div className="text-xs text-muted-foreground">
+                            {/* <div className="text-xs text-muted-foreground">
                               {f.key}
-                            </div>
+                            </div> */}
                           </TableCell>
 
-                          {/* important: wrapper-ul NU trebuie să fie block/w-full */}
                           <TableCell className="w-1/2 text-right">
                             <span
-                              className="inline-flex" // <-- cât checkbox-ul, nu acoperă celula
-                              onClick={(e) => e.stopPropagation()} // oprește doar click-ul pe checkbox
+                              className="inline-flex"
+                              onClick={(e) => e.stopPropagation()}
                             >
                               <Checkbox
                                 checked={checked}
                                 onCheckedChange={(v) =>
                                   toggle(f.id, Boolean(v))
                                 }
-                                onClickCapture={(e) => e.stopPropagation()} // alternativ sigur
+                                //onClickCapture={(e) => e.stopPropagation()}
                                 aria-label={`Select ${f.label}`}
                               />
                             </span>
@@ -123,20 +121,22 @@ export default function ProjectDetailsClient({
           </CardContent>
         </Card>
 
-        {/* Generate key */}
+        {/* sectiunea de generate key */}
         <Card>
           <CardHeader>
-            <CardTitle>Generate key</CardTitle>
+            <CardTitle className="text-center text-lg">Obține cheia</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="text-sm text-muted-foreground">
-                Selected features:
+                Servicii alese:
               </div>
 
               <div className="rounded-md border p-3 min-h-16">
                 {selectedFeatures.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">— none —</div>
+                  <div className="text-sm text-muted-foreground">
+                    — niciunul —
+                  </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {selectedFeatures.map((f) => (
@@ -163,7 +163,7 @@ export default function ProjectDetailsClient({
                   console.log("Generate key for:", selectedFeatures)
                 }
               >
-                Generate key
+                Generează licența!
               </Button>
             </div>
           </CardContent>

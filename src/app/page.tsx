@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { Card } from "@/components/ui/card";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -21,10 +22,10 @@ export default function Home() {
   }
 
   return (
-    <div>
-      <div>
+    <div className="grid gap-6 lg:grid-cols-3 p-6">
+      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(30vw-3rem)] h-[calc(20vh-3rem)] overflow-y-auto p-6 tex text-center">
         <h1>Hello, {session.user?.name}!</h1>
-      </div>
+      </Card>
     </div>
   );
 }
