@@ -5,12 +5,10 @@ import TestTable from "@/components/projects-table";
 import { pg } from "@@/lib/db";
 
 export default async function Page({
-  // 👇 searchParams e PROMISE acum
   searchParams,
 }: {
   searchParams: Promise<{ sort?: string; order?: "asc" | "desc"; q?: string }>;
 }) {
-  // 👇 așteaptă-l înainte de a-i citi proprietățile
   const sp = await searchParams;
 
   const allowed: Record<string, string> = {
