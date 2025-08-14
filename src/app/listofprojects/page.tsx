@@ -1,3 +1,7 @@
+// citirea parametrilor din url
+// interogarea db
+// trimite props catre \components\projects-table
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -33,5 +37,6 @@ export default async function Page({
   sql += ` ORDER BY ${sort} ${order}`;
 
   const { rows: projects } = await pg.query(sql, params);
+
   return <TestTable projects={projects} />;
 }

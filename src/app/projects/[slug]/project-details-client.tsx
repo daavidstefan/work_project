@@ -1,3 +1,6 @@
+// primeste props de la \prokects\[slug]\page.tsx
+// afiseaza datele despre proiect in ui
+
 "use client";
 
 import { useState } from "react";
@@ -26,8 +29,8 @@ export default function ProjectDetailsClient({
   const [selected, setSelected] = useState<number[]>([]);
 
   const toggle = (id: number, checked: boolean) =>
-    setSelected((prev) =>
-      checked ? [...prev, id] : prev.filter((x) => x !== id)
+    setSelected(
+      (prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)) // daca checked e true, adauga id in lista
     );
 
   const selectedFeatures = features.filter((f) => selected.includes(f.id));
@@ -99,7 +102,7 @@ export default function ProjectDetailsClient({
                           <TableCell className="w-1/2 text-right">
                             <span
                               className="inline-flex"
-                              onClick={(e) => e.stopPropagation()}
+                              onClick={(e) => e.stopPropagation()} // ca sa nu existe 2 toggle-uri
                             >
                               <Checkbox
                                 checked={checked}

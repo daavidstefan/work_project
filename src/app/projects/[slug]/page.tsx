@@ -1,3 +1,7 @@
+// citirea slug-ului
+// interogarea db
+// trimite props catre ProjectDetailsClient
+
 import { pg } from "@@/lib/db";
 import ProjectDetailsClient from "./project-details-client";
 

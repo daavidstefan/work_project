@@ -1,3 +1,7 @@
+// primeste props de la \listofprojects\page.tsx
+// realizeaza sortarea
+// populeaza tabelul de proiecte
+
 "use client";
 
 import { useMemo, useState } from "react";
@@ -40,12 +44,14 @@ type Project = {
   created_at: string | Date | null;
 };
 
+// formatarea datei
 const fmtDate = (v: string | Date | null) => {
   if (!v) return "-";
   const d = v instanceof Date ? v : new Date(v);
   return isNaN(d.getTime()) ? "-" : d.toLocaleString();
 };
 
+// determina textul pentru tooltip
 const tipText = (
   key: "id" | "name" | "created_at",
   sort: string,
@@ -96,19 +102,13 @@ export default function TestTable({ projects }: { projects: Project[] }) {
   const [localQ, setLocalQ] = useState(q);
   const hasFilters = Boolean(sp.get("q") || sp.get("sort") || sp.get("order"));
 
-  const previewUrl = useMemo(() => {
-    const next = new URLSearchParams(sp);
-    localQ ? next.set("q", localQ) : next.delete("q");
-    return `${
-      typeof window !== "undefined" ? window.location.pathname : ""
-    }?${next.toString()}`;
-  }, [sp, localQ]);
-
+  // comuta sortarea
   const toggleSort = (key: "id" | "name" | "created_at") => {
     const nextOrder = sort === key && order === "asc" ? "desc" : "asc";
     update({ sort: key, order: nextOrder }, "push");
   };
 
+  // modifica icon-urile in functie de filtare
   const iconFor = (key: "id" | "name" | "created_at") => {
     const active = sort === key;
     const asc = order === "asc";
@@ -142,9 +142,6 @@ export default function TestTable({ projects }: { projects: Project[] }) {
       <ClockArrowUp className="size-4 opacity-30" />
     );
   };
-
-  const btn =
-    "inline-flex items-center justify-center rounded-md border px-3 text-sm h-10";
 
   return (
     <div className="grid gap-6 lg:grid-cols-3 p-6 ">

@@ -1,4 +1,7 @@
+// hook pentru a schimba parametrii din url (pentru filtrare)
+
 "use client";
+
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export function useUpdateParams() {
@@ -16,7 +19,7 @@ export function useUpdateParams() {
       else next.set(k, v);
     }
     const qs = next.toString();
-    const url = qs ? `${pathname}?${qs}` : pathname; // <- fără '?' când nu mai e nimic
+    const url = qs ? `${pathname}?${qs}` : pathname;
     mode === "push" ? router.push(url) : router.replace(url);
     return url;
   };
