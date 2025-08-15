@@ -64,12 +64,11 @@ export default function NavigationBar() {
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
-
         <div className="ml-auto flex items-center gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Sheet open={open} onOpenChange={setOpen}>
+          <Sheet open={open} onOpenChange={setOpen}>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
                   <SheetTrigger asChild>
                     <button
                       className="cursor-pointer p-2 rounded-md hover:bg-accent"
@@ -78,68 +77,67 @@ export default function NavigationBar() {
                       <UserIcon className="size-5" />
                     </button>
                   </SheetTrigger>
+                </TooltipTrigger>
 
-                  <SheetContent
-                    side="left"
-                    className="
-                      p-0 w-72
-                      bg-gray-100 dark:bg-gray-600
-                      border shadow-lg
-                      rounded-tr-3xl rounded-br-3xl
-                      flex flex-col
-                    "
-                    style={{
-                      top: NAVBAR_H,
-                      height: `calc(100vh - ${NAVBAR_H}px)`,
-                    }}
-                  >
-                    <SheetHeader className="px-4 py-3">
-                      <SheetTitle>Contul meu</SheetTitle>
-                    </SheetHeader>
+                <TooltipContent side="bottom">
+                  <p>Meniu</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
-                    <nav className="px-2 pb-4 space-y-1">
-                      <Link
-                        className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
-                        href="/"
-                      >
-                        Licențele mele
-                      </Link>
-                      <Link
-                        className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
-                        href="/listofprojects"
-                      >
-                        Detaliile contului
-                      </Link>
-                      <Link
-                        className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
-                        href="/calendar"
-                      >
-                        Șterge contul
-                      </Link>
-                      <Link
-                        className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
-                        href="/search"
-                      >
-                        Contact
-                      </Link>
-                    </nav>
+            <SheetContent
+              side="left"
+              className="
+        p-0 w-72
+        bg-gray-100 dark:bg-gray-600
+        border shadow-lg
+        rounded-tr-3xl rounded-br-3xl
+        flex flex-col
+      "
+              style={{
+                top: NAVBAR_H,
+                height: `calc(100vh - ${NAVBAR_H}px)`,
+              }}
+            >
+              <SheetHeader className="px-4 py-3">
+                <SheetTitle>Contul meu</SheetTitle>
+              </SheetHeader>
 
-                    {open && (
-                      <div className="mt-auto border-t px-4 py-3 text-sm flex items-center justify-between">
-                        <span className="text-muted-foreground">
-                          Durată sesiune:
-                        </span>
-                        <ConnectedSince active={open} />
-                      </div>
-                    )}
-                  </SheetContent>
-                </Sheet>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p>Meniu</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+              <nav className="px-2 pb-4 space-y-1">
+                <Link
+                  className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
+                  href="/"
+                >
+                  Licențele mele
+                </Link>
+                <Link
+                  className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
+                  href="/listofprojects"
+                >
+                  Detaliile contului
+                </Link>
+                <Link
+                  className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
+                  href="/calendar"
+                >
+                  Șterge contul
+                </Link>
+                <Link
+                  className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
+                  href="/search"
+                >
+                  Contact
+                </Link>
+              </nav>
+
+              {open && (
+                <div className="mt-auto border-t px-4 py-3 text-sm flex items-center justify-between">
+                  <span className="text-muted-foreground">Durată sesiune:</span>
+                  <ConnectedSince active={open} />
+                </div>
+              )}
+            </SheetContent>
+          </Sheet>
 
           <span className="text-md">{username} </span>
           {status === "authenticated" ? (
