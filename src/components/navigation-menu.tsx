@@ -25,8 +25,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ConnectedSince } from "@/components/connected-since";
+import { usePathname } from "next/navigation";
 
 export default function NavigationBar() {
+  const pathname = usePathname();
+  if (pathname === "/login" || pathname === "/after-auth") return null;
   const { data: session, status } = useSession();
   const username = session?.user?.name ?? "Guest";
   const [open, setOpen] = useState(false);
@@ -47,14 +50,6 @@ export default function NavigationBar() {
       <div className="flex h-14 w-full items-center px-4">
         <NavigationMenu className="justify-start">
           <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link href="/" className="px-3 py-2">
-                  Home
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link href="/listofprojects" className="px-3 py-2">
