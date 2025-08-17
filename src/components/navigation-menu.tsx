@@ -54,19 +54,28 @@ export default function NavigationBar() {
   const handleLogout = async () => {
     const idToken = (session as any)?.idToken as string | undefined;
     try {
+      // Logout din Keycloak (curăță sesiunea SSO)
       if (idToken && process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER) {
-        const url = `${
-          process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER
-        }/protocol/openid-connect/logout?id_token_hint=${encodeURIComponent(
-          idToken
-        )}&post_logout_redirect_uri=${encodeURIComponent(
-          `${window.location.origin}/login`
-        )}`;
-        await fetch(url);
+        const url =
+          `${process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER}/protocol/openid-connect/logout` +
+          `?id_token_hint=${encodeURIComponent(idToken)}` +
+          `&post_logout_redirect_uri=${encodeURIComponent(
+            `${window.location.origin}/login`
+          )}`;
+        await fetch(url, { credentials: "include" }).catch(() => {});
       }
+      // Logout din NextAuth fără redirect imediat
+      await signOut({ redirect: false });
     } finally {
       localStorage.removeItem("loginAt");
-      signOut({ callbackUrl: "/login" });
+      // Șterge toate cookie‑urile de pe domeniul curent
+      document.cookie.split(";").forEach((cookie) => {
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+      });
+      // Redirecționează către pagina de login (care va duce la formularul Keycloak)
+      window.location.href = "/login";
     }
   };
 

@@ -1,29 +1,23 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@@/lib/auth";
-import Link from "next/link";
-import { redirect } from "next/navigation";
+"use client";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
 
-export default async function Login({
-  searchParams,
-}: {
-  searchParams?: { error?: string };
-}) {
-  const session = await getServerSession(authOptions);
-  if (session) {
-    redirect("/listofprojects");
-  }
-  if (searchParams?.error) {
-    return (
-      <div className="p-4">
-        <p className="mb-4">Autentificarea a eșuat.</p>
-        <Link
-          className="text-blue-600 underline"
-          href="/api/auth/signin/keycloak?callbackUrl=/listofprojects"
-        >
-          Încearcă din nou
-        </Link>
+export default function LoginPage() {
+  const [role, setRole] = useState<"client" | "provider">("client");
+
+  const handleLogin = () => {
+    signIn("keycloak", { callbackUrl: "/listofprojects" });
+  };
+
+  return (
+    <main className="min-h-[70vh] flex items-center justify-center p-6">
+      <div className="w-full max-w-md space-y-5 border rounded-xl p-6">
+        <h1 className="text-2xl font-semibold text-center">Autentificare</h1>
+
+        <button className="w-full border rounded-md p-3" onClick={handleLogin}>
+          Conectare cu Keycloak
+        </button>
       </div>
-    );
-  }
-  redirect("/api/auth/signin/keycloak?callbackUrl=/listofprojects");
+    </main>
+  );
 }
