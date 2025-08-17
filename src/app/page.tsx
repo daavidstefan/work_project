@@ -9,12 +9,6 @@ import { Card } from "@/components/ui/card";
 export default function Home() {
   const { data: session, status } = useSession();
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      signIn("keycloak");
-    }
-  }, [status]);
-
   if (status === "loading") {
     return <p>Loading...</p>;
   }
