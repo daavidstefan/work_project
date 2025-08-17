@@ -1,20 +1,15 @@
 // logarea user-uluo
 
-"use client";
-
-import { useEffect } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@@/lib/auth";
+import { redirect } from "next/navigation";
 import { Card } from "@/components/ui/card";
 
-export default function Home() {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return <p>Loading...</p>;
-  }
+export default async function Home() {
+  const session = await getServerSession(authOptions);
 
   if (!session) {
-    return null;
+    redirect("/api/auth/signin");
   }
 
   return (

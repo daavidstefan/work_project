@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useUpdateParams } from "@/hooks/useUpdateParams";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { TableButton } from "./table-button";
 
 import {
@@ -161,26 +162,24 @@ export default function TestTable({ projects }: { projects: Project[] }) {
                   e.key === "Enter" && update({ q: localQ || null }, "push")
                 }
               />
-              <button
+              <Button
                 onClick={() => update({ q: localQ || null }, "push")}
-                className={
-                  "inline-flex items-center justify-center rounded-md border px-3 text-sm h-10 cursor-pointer"
-                }
+                variant="outline"
+                size="lg"
               >
                 Căutare
-              </button>
-              <button
+              </Button>
+              <Button
                 disabled={!hasFilters}
                 onClick={() => {
                   setLocalQ("");
                   update({ q: null, sort: null, order: null }, "push");
                 }}
-                className={
-                  "inline-flex items-center justify-center rounded-md border px-3 text-sm h-10 whitespace-nowrap disabled:opacity-50 cursor-pointer"
-                }
+                variant="outline"
+                size="lg"
               >
                 Șterge filtrele
-              </button>
+              </Button>
             </div>
           </div>
         </CardHeader>
