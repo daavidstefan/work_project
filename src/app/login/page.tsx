@@ -1,12 +1,11 @@
-"use client";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@@/lib/auth";
+import { redirect } from "next/navigation";
 
-import { signIn } from "next-auth/react";
-import { NavbarButton } from "@/components/button";
-
-export default function Login() {
-  return (
-    <div className="flex justify-center p-4">
-      <NavbarButton onClick={() => signIn("keycloak")}>Log in</NavbarButton>
-    </div>
-  );
+export default async function Login() {
+  const session = await getServerSession(authOptions);
+  if (session) {
+    redirect("/listofprojects");
+  }
+  redirect("/api/auth/signin/keycloak?callbackUrl=/listofprojects");
 }

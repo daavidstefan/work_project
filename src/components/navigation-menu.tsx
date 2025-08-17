@@ -25,8 +25,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ConnectedSince } from "@/components/connected-since";
+import { usePathname } from "next/navigation";
 
 export default function NavigationBar() {
+  const pathname = usePathname();
+  if (pathname === "/login") return null;
   const { data: session, status } = useSession();
   const username = session?.user?.name;
   const [open, setOpen] = useState(false);
