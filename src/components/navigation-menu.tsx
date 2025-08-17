@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { User as UserIcon } from "lucide-react";
 import {
@@ -60,12 +60,13 @@ export default function NavigationBar() {
         }/protocol/openid-connect/logout?id_token_hint=${encodeURIComponent(
           idToken
         )}&post_logout_redirect_uri=${encodeURIComponent(
-          window.location.origin
+          `${window.location.origin}/login`
         )}`;
         await fetch(url);
       }
     } finally {
-      signOut({ callbackUrl: "/" });
+      localStorage.removeItem("loginAt");
+      signOut({ callbackUrl: "/login" });
     }
   };
 
@@ -163,11 +164,6 @@ export default function NavigationBar() {
           )}
           {mounted && status === "authenticated" && (
             <NavbarButton onClick={handleLogout}>Log out</NavbarButton>
-          )}
-          {mounted && status === "unauthenticated" && (
-            <NavbarButton onClick={() => signIn("keycloak")}>
-              Log in
-            </NavbarButton>
           )}
         </div>
       </div>

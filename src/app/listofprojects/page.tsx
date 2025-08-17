@@ -7,12 +7,19 @@ export const revalidate = 0;
 
 import TestTable from "@/components/projects-table";
 import { pg } from "@@/lib/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function Page({
   searchParams,
 }: {
   searchParams: Promise<{ sort?: string; order?: "asc" | "desc"; q?: string }>;
 }) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    redirect("/login");
+  }
   const sp = await searchParams;
 
   const allowed: Record<string, string> = {
