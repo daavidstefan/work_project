@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
+import { NavbarButton } from "@/components/button";
 
-export default function Home() {
-  const { data: session, status } = useSession();
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      signIn("keycloak");
-    }
-  }, [status]);
+export default function Login() {
+  return (
+    <div className="flex justify-center p-4">
+      <NavbarButton onClick={() => signIn("keycloak")}>Log in</NavbarButton>
+    </div>
+  );
 }

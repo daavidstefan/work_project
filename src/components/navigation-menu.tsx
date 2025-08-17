@@ -28,9 +28,15 @@ import { ConnectedSince } from "@/components/connected-since";
 
 export default function NavigationBar() {
   const { data: session, status } = useSession();
-  const username = session?.user?.name ?? "Guest";
+  const username = session?.user?.name;
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const NAVBAR_H = 56;
+
+  // ensure client-only render to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // salveaza ora de login
   useEffect(() => {
@@ -42,19 +48,29 @@ export default function NavigationBar() {
     }
   }, [status]);
 
+  const handleLogout = async () => {
+    const idToken = (session as any)?.idToken as string | undefined;
+    try {
+      if (idToken && process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER) {
+        const url = `${
+          process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER
+        }/protocol/openid-connect/logout?id_token_hint=${encodeURIComponent(
+          idToken
+        )}&post_logout_redirect_uri=${encodeURIComponent(
+          window.location.origin
+        )}`;
+        await fetch(url);
+      }
+    } finally {
+      signOut({ callbackUrl: "/" });
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur">
       <div className="flex h-14 w-full items-center px-4">
         <NavigationMenu className="justify-start">
           <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link href="/" className="px-3 py-2">
-                  Home
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link href="/listofprojects" className="px-3 py-2">
@@ -139,12 +155,13 @@ export default function NavigationBar() {
             </SheetContent>
           </Sheet>
 
-          <span className="text-md">{username} </span>
-          {status === "authenticated" ? (
-            <NavbarButton onClick={() => signOut({ callbackUrl: "/" })}>
-              Log out
-            </NavbarButton>
-          ) : (
+          {mounted && status === "authenticated" && username && (
+            <span className="text-md">{username}</span>
+          )}
+          {mounted && status === "authenticated" && (
+            <NavbarButton onClick={handleLogout}>Log out</NavbarButton>
+          )}
+          {mounted && status === "unauthenticated" && (
             <NavbarButton onClick={() => signIn("keycloak")}>
               Log in
             </NavbarButton>

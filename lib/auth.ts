@@ -13,5 +13,22 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 3600,
   },
+  pages: {
+    signIn: "/login",
+  },
+  callbacks: {
+    async jwt({ token, account }) {
+      if (account?.id_token) {
+        token.idToken = account.id_token;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token.idToken) {
+        (session as any).idToken = token.idToken as string;
+      }
+      return session;
+    },
+  },
   secret: process.env.NEXTAUTH_SECRET!,
 };
