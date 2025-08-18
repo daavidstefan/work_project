@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   if (!session)
     return NextResponse.json({ error: "Neautentificat" }, { status: 401 });
 
-  const userId = (session.user as any)?.id; // <-- sub / providerAccountId
+  const userId = (session.user as any)?.id; // <-- sub / providerAccountId ( de la keycloak )
   if (!userId)
     return NextResponse.json(
       { error: "Lipsește sub (id) în sesiune" },
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
   const client = await pool.connect();
   try {
-    // 1) Citește autorul din tabela users
+    // citeste autorul din users
     const userRes = await client.query(
       `SELECT name, username, email FROM users WHERE id = $1 LIMIT 1`,
       [userId]
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     await client.query("BEGIN");
 
-    // 2) Generează slug unic
+    // slug unic
     const slugBase = slugify(name);
     let slug = slugBase;
     for (let i = 1; ; i++) {
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       slug = `${slugBase}-${i}`;
     }
 
-    // 3) Creează proiectul + created_by
+    // creaza proiectul + created_by
     const projRes = await client.query(
       `INSERT INTO projects (slug, name, details, created_at, created_by)
        VALUES ($1, $2, $3, NOW(), $4)
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     );
     const projectId: number = projRes.rows[0].id;
 
-    // 4) Features (upsert) + mapare
+    // features + mapare
     const featureIds: number[] = [];
     for (const f of features) {
       const upsert = await client.query(
