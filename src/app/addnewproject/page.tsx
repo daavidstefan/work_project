@@ -33,7 +33,6 @@ export default function AddNewProject() {
     const label = featInput.trim();
     if (!label) return;
 
-    // opțional: evită duplicatele (case-insensitive)
     if (features.some((f) => f.label.toLowerCase() === label.toLowerCase())) {
       setFeatInput("");
       featRef.current?.focus();
