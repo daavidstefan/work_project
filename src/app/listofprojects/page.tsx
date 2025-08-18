@@ -5,13 +5,18 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-import TestTable from "@/components/projects-table";
+import ProjectsTable from "@/components/projects-table";
 import { pg } from "@@/lib/db";
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ sort?: string; order?: "asc" | "desc"; q?: string }>;
+  searchParams: Promise<{
+    sort?: string;
+    order?: "asc" | "desc";
+    name?: string;
+    author?: string;
+  }>;
 }) {
   const sp = await searchParams;
 
@@ -24,19 +29,30 @@ export default async function Page({
   const sort = allowed[sp.sort ?? "id"] ?? "id";
   const order = sp.order === "desc" ? "DESC" : "ASC";
 
-  const q = (sp.q ?? "").toString().trim();
+  const nameQ = (sp.name ?? "").toString().trim();
+  const authorQ = (sp.author ?? "").toString().trim();
 
   const params: any[] = [];
-  let sql = `SELECT id, name, details, slug, created_at FROM projects`;
+  let sql = `SELECT id, name, details, slug, created_at, created_by FROM projects`;
+  let conditions: string[] = [];
 
-  if (q) {
-    params.push(`%${q}%`);
-    sql += ` WHERE name ILIKE $${params.length}`;
+  if (nameQ) {
+    params.push(`%${nameQ}%`);
+    conditions.push(`name ILIKE $${params.length}`);
+  }
+
+  if (authorQ) {
+    params.push(`%${authorQ}%`);
+    conditions.push(`created_by ILIKE $${params.length}`);
+  }
+
+  if (conditions.length > 0) {
+    sql += " WHERE " + conditions.join(" AND ");
   }
 
   sql += ` ORDER BY ${sort} ${order}`;
 
   const { rows: projects } = await pg.query(sql, params);
 
-  return <TestTable projects={projects} />;
+  return <ProjectsTable projects={projects} />;
 }

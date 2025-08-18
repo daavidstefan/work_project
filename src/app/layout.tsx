@@ -6,6 +6,7 @@ import NavigationBar from "@/components/navigation-menu";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/sidebar";
 import App from "next/app";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +35,9 @@ export default function RootLayout({
       >
         <Providers>
           {" "}
-          <NavigationBar /> <main>{children}</main>{" "}
+          <NavigationBar />
+          <main>{children}</main>{" "}
+          <Toaster position="top-center" richColors duration={3000} />
         </Providers>
       </body>
     </html>

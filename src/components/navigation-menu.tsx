@@ -135,7 +135,7 @@ export default function NavigationBar() {
               <nav className="px-2 pb-4 space-y-1">
                 <Link
                   className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
-                  href="/"
+                  href="/listofprojects"
                 >
                   Licențele mele
                 </Link>
@@ -147,13 +147,13 @@ export default function NavigationBar() {
                 </Link>
                 <Link
                   className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
-                  href="/calendar"
+                  href="/listofprojects"
                 >
                   Șterge contul
                 </Link>
                 <Link
                   className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
-                  href="/search"
+                  href="/listofprojects"
                 >
                   Contact
                 </Link>
@@ -172,7 +172,7 @@ export default function NavigationBar() {
             <span className="text-md">{username}</span>
           )}
           {mounted && status === "authenticated" && (
-            <NavbarButton onClick={handleLogout}>Log out</NavbarButton>
+            <NavbarButton onClick={handleLogout}>Deconectare</NavbarButton>
           )}
         </div>
       </div>

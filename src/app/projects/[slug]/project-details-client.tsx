@@ -17,6 +17,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 type Feature = { id: number; key: string; label: string };
 export default function ProjectDetailsClient({
@@ -32,6 +40,9 @@ export default function ProjectDetailsClient({
     setSelected(
       (prev) => (checked ? [...prev, id] : prev.filter((x) => x !== id)) // daca checked e true, adauga id in lista
     );
+
+  const unselect = (id: number) =>
+    setSelected((prev) => prev.filter((x) => x !== id));
 
   const selectedFeatures = features.filter((f) => selected.includes(f.id));
 
@@ -146,10 +157,24 @@ export default function ProjectDetailsClient({
                       <Badge
                         key={f.id}
                         variant="outline"
-                        className="text-muted-foreground"
-                        title={f.key}
+                        className="inline-flex items-center gap-1 text-muted-foreground pl-2 pr-1"
                       >
-                        {f.label}
+                        <span>{f.label}</span>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={() => unselect(f.id)}
+                                className="ml-1 rounded p-0.5 hover:bg-muted cursor-pointer"
+                                aria-label={`Elimină ${f.label}`}
+                              >
+                                <X className="size-3" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">Elimină</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </Badge>
                     ))}
                   </div>
@@ -160,11 +185,9 @@ export default function ProjectDetailsClient({
 
               <Button
                 variant="destructive"
-                className="h-11"
+                className="h-11 cursor-pointer"
                 disabled={selectedFeatures.length === 0}
-                onClick={() =>
-                  console.log("Generate key for:", selectedFeatures)
-                }
+                onClick={() => toast.error("Zonă în construcție...")}
               >
                 Generează licența!
               </Button>

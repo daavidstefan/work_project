@@ -4,12 +4,14 @@
 
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useUpdateParams } from "@/hooks/useUpdateParams";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TableButton } from "./table-button";
+import { Input } from "@/components/ui/input";
 
 import {
   ArrowUp10,
@@ -43,6 +45,7 @@ type Project = {
   details: string;
   slug: string;
   created_at: string | Date | null;
+  created_by: string | null;
 };
 
 // formatarea datei
@@ -92,16 +95,22 @@ const IconWithTip = ({
   </Tooltip>
 );
 
-export default function TestTable({ projects }: { projects: Project[] }) {
+export default function ProjectsTable({ projects }: { projects: Project[] }) {
   const sp = useSearchParams();
   const update = useUpdateParams();
 
   const sort = (sp.get("sort") as "id" | "name" | "created_at") ?? "id";
   const order = (sp.get("order") as "asc" | "desc") ?? "asc";
-  const q = sp.get("q") ?? "";
 
-  const [localQ, setLocalQ] = useState(q);
-  const hasFilters = Boolean(sp.get("q") || sp.get("sort") || sp.get("order"));
+  const nameQ = sp.get("name") ?? "";
+  const authorQ = sp.get("author") ?? "";
+
+  const [localName, setLocalName] = useState(nameQ);
+  const [localAuthor, setLocalAuthor] = useState(authorQ);
+
+  const hasFilters = Boolean(
+    sp.get("name") || sp.get("author") || sp.get("sort") || sp.get("order")
+  );
 
   // comuta sortarea
   const toggleSort = (key: "id" | "name" | "created_at") => {
@@ -146,24 +155,59 @@ export default function TestTable({ projects }: { projects: Project[] }) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-3 p-6 ">
-      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(55vw-3rem)] h-[calc(92vh-3rem)] overflow-y-auto p-6">
-        <CardHeader className="gap-2">
-          <div className="flex items-center justify-between gap-3">
-            <CardTitle className="text-lg">
-              Lista proiectelor disponibile:
-            </CardTitle>
-            <div className="flex items-center gap-2 w-full max-w-md">
-              <input
-                value={localQ}
-                onChange={(e) => setLocalQ(e.target.value)}
+      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] overflow-y-auto p-6">
+        <CardHeader className="px-6">
+          <div className="flex items-center justify-between gap-4">
+            {/* STÂNGA: titlu pe o linie + link dedesubt */}
+            <div className="flex flex-col shrink-0">
+              <CardTitle className="text-lg">
+                Lista proiectelor disponibile:
+              </CardTitle>
+              <Link
+                href="/addnewproject"
+                className="underline text-black text-sm"
+              >
+                Adaugă un proiect nou
+              </Link>
+            </div>
+
+            {/* DREAPTA: căutare aliniată dreapta */}
+            <div className="flex items-center gap-2">
+              <Input
+                value={localName}
+                onChange={(e) => setLocalName(e.target.value)}
                 placeholder="Caută după nume…"
-                className="w-full rounded-md border px-3 py-2 text-sm outline-none"
+                className="w-50 rounded-md border px-3 py-2 text-sm outline-none"
                 onKeyDown={(e) =>
-                  e.key === "Enter" && update({ q: localQ || null }, "push")
+                  e.key === "Enter" &&
+                  update(
+                    { name: localName || null, author: localAuthor || null },
+                    "push"
+                  )
                 }
               />
+
+              <Input
+                value={localAuthor}
+                onChange={(e) => setLocalAuthor(e.target.value)}
+                placeholder="Caută după autor…"
+                className="w-50 min-w-0 rounded-md border px-3 py-2 text-sm outline-none"
+                onKeyDown={(e) =>
+                  e.key === "Enter" &&
+                  update(
+                    { name: localName || null, author: localAuthor || null },
+                    "push"
+                  )
+                }
+              />
+
               <Button
-                onClick={() => update({ q: localQ || null }, "push")}
+                onClick={() =>
+                  update(
+                    { name: localName || null, author: localAuthor || null },
+                    "push"
+                  )
+                }
                 variant="outline"
                 size="lg"
               >
@@ -172,13 +216,16 @@ export default function TestTable({ projects }: { projects: Project[] }) {
               <Button
                 disabled={!hasFilters}
                 onClick={() => {
-                  setLocalQ("");
+                  setLocalName("");
+                  setLocalAuthor("");
                   update({ q: null, sort: null, order: null }, "push");
                 }}
-                variant="outline"
+                variant="destructive"
+                className="cursor-pointer"
                 size="lg"
               >
-                Șterge filtrele
+                {" "}
+                Șterge filtrele{" "}
               </Button>
             </div>
           </div>
@@ -187,12 +234,7 @@ export default function TestTable({ projects }: { projects: Project[] }) {
         <CardContent className="p-0">
           <TooltipProvider delayDuration={200}>
             <Table className="table-fixed w-full">
-              <TableCaption>
-                Lista proiectelor disponibile.{" "}
-                <span className="underline cursor-pointer">
-                  Adaugă un proiect nou
-                </span>
-              </TableCaption>
+              <TableCaption>Lista proiectelor disponibile.</TableCaption>
 
               <TableHeader>
                 <TableRow>
@@ -220,6 +262,8 @@ export default function TestTable({ projects }: { projects: Project[] }) {
                     </button>
                   </TableHead>
 
+                  <TableHead className="w-[200px] text-left">Autor</TableHead>
+
                   <TableHead className="w-[220px] text-left">
                     <button
                       onClick={() => toggleSort("created_at")}
@@ -243,6 +287,7 @@ export default function TestTable({ projects }: { projects: Project[] }) {
                   <TableRow key={p.id}>
                     <TableCell className="text-left">{p.id}</TableCell>
                     <TableCell className="text-left">{p.name}</TableCell>
+                    <TableCell className="text-left">{p.created_by}</TableCell>
                     <TableCell className="text-left">
                       {fmtDate(p.created_at)}
                     </TableCell>
@@ -256,7 +301,7 @@ export default function TestTable({ projects }: { projects: Project[] }) {
 
                 {projects.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-6">
+                    <TableCell colSpan={5} className="text-center py-6">
                       Niciun rezultat.
                     </TableCell>
                   </TableRow>
