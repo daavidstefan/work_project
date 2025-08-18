@@ -158,7 +158,6 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
       <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] overflow-y-auto p-6">
         <CardHeader className="px-6">
           <div className="flex items-center justify-between gap-4">
-            {/* STÂNGA: titlu pe o linie + link dedesubt */}
             <div className="flex flex-col shrink-0">
               <CardTitle className="text-lg">
                 Lista proiectelor disponibile:
@@ -171,7 +170,6 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
               </Link>
             </div>
 
-            {/* DREAPTA: căutare aliniată dreapta */}
             <div className="flex items-center gap-2">
               <Input
                 value={localName}

@@ -36,7 +36,6 @@ export default function NavigationBar() {
   const [mounted, setMounted] = useState(false);
   const NAVBAR_H = 56;
 
-  // ensure client-only render to avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -54,7 +53,7 @@ export default function NavigationBar() {
   const handleLogout = async () => {
     const idToken = (session as any)?.idToken as string | undefined;
     try {
-      // Logout din Keycloak (curăță sesiunea SSO)
+      // curata sesiunea sso (sau cel putin incerc)
       if (idToken && process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER) {
         const url =
           `${process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER}/protocol/openid-connect/logout` +
@@ -64,17 +63,17 @@ export default function NavigationBar() {
           )}`;
         await fetch(url, { credentials: "include" }).catch(() => {});
       }
-      // Logout din NextAuth fără redirect imediat
+      // logout din nextauth
       await signOut({ redirect: false });
     } finally {
       localStorage.removeItem("loginAt");
-      // Șterge toate cookie‑urile de pe domeniul curent
+      // sterge cookies
       document.cookie.split(";").forEach((cookie) => {
         const eqPos = cookie.indexOf("=");
         const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
         document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
       });
-      // Redirecționează către pagina de login (care va duce la formularul Keycloak)
+      // redirect /login
       window.location.href = "/login";
     }
   };

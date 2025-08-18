@@ -12,35 +12,33 @@ function fmt(ms: number): string {
 }
 
 interface ConnectedSinceProps {
-  active: boolean; // pornește timerul doar când sheet-ul e deschis
+  active: boolean; // porneste timerul doar când sheet-ul e deschis
 }
 
 export function ConnectedSince({ active }: ConnectedSinceProps) {
   const [mounted, setMounted] = useState(false);
   const [loginAt, setLoginAt] = useState<number | null>(null);
-  const [now, setNow] = useState<number>(0); // 0 ca să nu genereze HTML variabil la SSR
+  const [now, setNow] = useState<number>(0);
 
-  // marchează că suntem pe client
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // citește loginAt din localStorage DOAR pe client
+  // citeste loginAt doar pe client
   useEffect(() => {
     if (!mounted) return;
     const saved = localStorage.getItem("loginAt");
     if (saved) setLoginAt(Number(saved));
   }, [mounted]);
 
-  // pornește/oprește timerul DOAR pe client și doar când e activ
+  // on/off timer doar pe client
   useEffect(() => {
     if (!mounted || !active || loginAt == null) return;
-    setNow(Date.now()); // tick imediat la deschidere
+    setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, [mounted, active, loginAt]);
 
-  // până se montează: afișează placeholder stabil (identic server/client)
   if (!mounted || loginAt == null) {
     return <span className="text-muted-foreground">—</span>;
   }

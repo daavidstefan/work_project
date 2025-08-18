@@ -19,8 +19,8 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ account, profile }) {
-      // Extragem câmpurile utile din Keycloak
-      const id = account?.providerAccountId ?? (profile as any)?.sub; // ID stabil (sub)
+      // extrage campuri din keycloak
+      const id = account?.providerAccountId ?? (profile as any)?.sub; // sub
       const email = (profile as any)?.email ?? null;
       const username =
         (profile as any)?.preferred_username ??
@@ -33,9 +33,8 @@ export const authOptions: NextAuthOptions = {
         }`.trim() ||
           null);
 
-      if (!id) return false; // fără id nu salvăm
+      if (!id) return false;
 
-      // Upsert în users (creează dacă nu există, actualizează dacă s-au schimbat datele)
       await pg.query(
         `INSERT INTO users (id, email, username, name)
          VALUES ($1, $2, $3, $4)
@@ -50,7 +49,7 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, account, profile }) {
-      // pune în token ce vrei să ai ulterior în sesiune
+      // pune sub in token
       if (account && profile) {
         token.sub = account.providerAccountId ?? token.sub;
         (token as any).username =
@@ -62,7 +61,7 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      // expune id/username în session
+      // expune id/username in sesiune
       (session.user as any).id = token.sub;
       (session.user as any).username = (token as any).username ?? null;
       return session;

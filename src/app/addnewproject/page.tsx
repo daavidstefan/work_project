@@ -122,7 +122,7 @@ export default function AddNewProject() {
               value={details}
               onChange={(e) => {
                 setDetails(e.target.value);
-                // auto-resize
+
                 e.currentTarget.style.height = "auto";
                 e.currentTarget.style.height =
                   e.currentTarget.scrollHeight + "px";
@@ -157,7 +157,6 @@ export default function AddNewProject() {
             <Card>
               <CardTitle className="text-center">Lista servicii</CardTitle>
               <div className="p-2">
-                {/* aici apar badge-urile cu features */}
                 {features.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center">
                     Niciun feature adăugat încă.
