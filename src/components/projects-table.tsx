@@ -8,7 +8,13 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useUpdateParams } from "@/hooks/useUpdateParams";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TableButton } from "./table-button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +44,7 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
+import { Separator } from "@radix-ui/react-separator";
 
 type Project = {
   id: number;
@@ -154,8 +161,8 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3 p-6 ">
-      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] overflow-y-auto p-6">
+    <div className="grid gap-6 lg:grid-cols-3 p-6">
+      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] flex flex-col">
         <CardHeader className="px-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col shrink-0">
@@ -175,7 +182,7 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
                 value={localName}
                 onChange={(e) => setLocalName(e.target.value)}
                 placeholder="Caută după nume…"
-                className="w-50 rounded-md border px-3 py-2 text-sm outline-none"
+                className="w-[200px] rounded-md border px-3 py-2 text-sm outline-none"
                 onKeyDown={(e) =>
                   e.key === "Enter" &&
                   update(
@@ -184,12 +191,11 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
                   )
                 }
               />
-
               <Input
                 value={localAuthor}
                 onChange={(e) => setLocalAuthor(e.target.value)}
                 placeholder="Caută după autor…"
-                className="w-50 min-w-0 rounded-md border px-3 py-2 text-sm outline-none"
+                className="w-[200px] min-w-0 rounded-md border px-3 py-2 text-sm outline-none"
                 onKeyDown={(e) =>
                   e.key === "Enter" &&
                   update(
@@ -198,7 +204,6 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
                   )
                 }
               />
-
               <Button
                 onClick={() =>
                   update(
@@ -216,98 +221,107 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
                 onClick={() => {
                   setLocalName("");
                   setLocalAuthor("");
-                  update({ q: null, sort: null, order: null }, "push");
+                  update(
+                    { name: null, author: null, sort: null, order: null },
+                    "push"
+                  ); // <- fix aici
                 }}
                 variant="destructive"
                 className="cursor-pointer"
                 size="lg"
               >
-                {" "}
-                Șterge filtrele{" "}
+                Șterge filtrele
               </Button>
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="p-0">
+        <Separator />
+
+        <CardContent className="p-0 flex-1 overflow-y-auto">
           <TooltipProvider delayDuration={200}>
-            <Table className="table-fixed w-full">
-              <TableCaption>Lista proiectelor disponibile.</TableCaption>
-
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[100px] text-left">
-                    <button
-                      onClick={() => toggleSort("id")}
-                      className="inline-flex items-center gap-1"
-                    >
-                      ID
-                      <IconWithTip text={tipText("id", sort, order)}>
-                        {iconFor("id")}
-                      </IconWithTip>
-                    </button>
-                  </TableHead>
-
-                  <TableHead className="text-left">
-                    <button
-                      onClick={() => toggleSort("name")}
-                      className="inline-flex items-center gap-1"
-                    >
-                      Proiect
-                      <IconWithTip text={tipText("name", sort, order)}>
-                        {iconFor("name")}
-                      </IconWithTip>
-                    </button>
-                  </TableHead>
-
-                  <TableHead className="w-[200px] text-left">Autor</TableHead>
-
-                  <TableHead className="w-[220px] text-left">
-                    <button
-                      onClick={() => toggleSort("created_at")}
-                      className="inline-flex items-center gap-1"
-                    >
-                      Creat
-                      <IconWithTip text={tipText("created_at", sort, order)}>
-                        {iconFor("created_at")}
-                      </IconWithTip>
-                    </button>
-                  </TableHead>
-
-                  <TableHead className="w-[120px] text-right">
-                    Detalii
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {projects.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell className="text-left">{p.id}</TableCell>
-                    <TableCell className="text-left">{p.name}</TableCell>
-                    <TableCell className="text-left">{p.created_by}</TableCell>
-                    <TableCell className="text-left">
-                      {fmtDate(p.created_at)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end">
-                        <TableButton slug={p.slug} />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-
-                {projects.length === 0 && (
+            <div className="p-6">
+              <Table className="table-fixed w-full">
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-6">
-                      Niciun rezultat.
-                    </TableCell>
+                    <TableHead className="w-[100px] text-left">
+                      <button
+                        type="button"
+                        onClick={() => toggleSort("id")}
+                        className="inline-flex items-center gap-1"
+                      >
+                        ID
+                        <IconWithTip text={tipText("id", sort, order)}>
+                          {iconFor("id")}
+                        </IconWithTip>
+                      </button>
+                    </TableHead>
+                    <TableHead className="text-left">
+                      <button
+                        type="button"
+                        onClick={() => toggleSort("name")}
+                        className="inline-flex items-center gap-1"
+                      >
+                        Proiect
+                        <IconWithTip text={tipText("name", sort, order)}>
+                          {iconFor("name")}
+                        </IconWithTip>
+                      </button>
+                    </TableHead>
+                    <TableHead className="w-[200px] text-left">Autor</TableHead>
+                    <TableHead className="w-[220px] text-left">
+                      <button
+                        type="button"
+                        onClick={() => toggleSort("created_at")}
+                        className="inline-flex items-center gap-1"
+                      >
+                        Creat
+                        <IconWithTip text={tipText("created_at", sort, order)}>
+                          {iconFor("created_at")}
+                        </IconWithTip>
+                      </button>
+                    </TableHead>
+                    <TableHead className="w-[120px] text-right">
+                      Detalii
+                    </TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+
+                <TableBody>
+                  {projects.map((p) => (
+                    <TableRow key={p.id}>
+                      <TableCell className="text-left">{p.id}</TableCell>
+                      <TableCell className="text-left">{p.name}</TableCell>
+                      <TableCell className="text-left">
+                        {p.created_by}
+                      </TableCell>
+                      <TableCell className="text-left">
+                        {fmtDate(p.created_at)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end">
+                          <TableButton slug={p.slug} />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+
+                  {projects.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-6">
+                        Niciun rezultat.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </TooltipProvider>
         </CardContent>
+
+        <CardFooter className="text-sm text-muted-foreground justify-center">
+          Lista proiectelor disponibile.
+        </CardFooter>
       </Card>
     </div>
   );

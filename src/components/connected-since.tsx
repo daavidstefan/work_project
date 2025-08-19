@@ -16,30 +16,23 @@ interface ConnectedSinceProps {
 }
 
 export function ConnectedSince({ active }: ConnectedSinceProps) {
-  const [mounted, setMounted] = useState(false);
   const [loginAt, setLoginAt] = useState<number | null>(null);
-  const [now, setNow] = useState<number>(0);
+  const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // citeste loginAt doar pe client
-  useEffect(() => {
-    if (!mounted) return;
     const saved = localStorage.getItem("loginAt");
     if (saved) setLoginAt(Number(saved));
-  }, [mounted]);
+  }, []);
 
   // on/off timer doar pe client
   useEffect(() => {
-    if (!mounted || !active || loginAt == null) return;
+    if (!active || loginAt == null) return;
     setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
-  }, [mounted, active, loginAt]);
+  }, [active, loginAt]);
 
-  if (!mounted || loginAt == null) {
+  if (loginAt == null) {
     return <span className="text-muted-foreground">—</span>;
   }
 

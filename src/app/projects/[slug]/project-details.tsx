@@ -1,0 +1,582 @@
+// primește props de la \projects\[slug]\page.tsx
+// afișează datele despre proiect în UI + (opțional) controale de editare
+
+"use client";
+
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Pen, X } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { Pencil } from "lucide-react";
+import { CirclePlus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
+import { Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+type Feature = { id: number; key: string; label: string };
+
+export default function ProjectDetails({
+  project,
+  features,
+  canEdit = false,
+}: {
+  project: {
+    id?: number;
+    slug?: string;
+    name: string;
+    details: string;
+    created_at?: string | Date;
+  };
+  features: Feature[];
+  canEdit?: boolean;
+}) {
+  const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
+  const [draftName, setDraftName] = useState(project.name);
+  const [draftDetails, setDraftDetails] = useState(project.details || "");
+  const [saving, setSaving] = useState(false);
+
+  const startEdit = () => {
+    setDraftName(project.name);
+    setDraftDetails(project.details || "");
+    setIsEditing(true);
+  };
+
+  const cancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const saveEdit = async () => {
+    try {
+      setSaving(true);
+      const res = await fetch(`/api/projects/${project.slug}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: draftName, details: draftDetails }),
+      });
+      if (!res.ok) throw new Error("Save failed");
+
+      toast.success("Modificări salvate");
+      project.name = draftName;
+      project.details = draftDetails;
+      setIsEditing(false);
+      router.refresh?.();
+    } catch (e) {
+      toast.error("Nu am putut salva modificările");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const deleteProject = async () => {
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!project.slug) {
+      toast.error("Slug inexistent pentru proiect.");
+      setConfirmOpen(false);
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      const res = await fetch(`/api/projects/${project.slug}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Delete failed");
+
+      toast.success("Proiect șters");
+      router.push("/myprojects");
+    } catch (e) {
+      toast.error("Nu am putut șterge proiectul");
+    } finally {
+      setDeleting(false);
+      setConfirmOpen(false);
+    }
+  };
+
+  const [featureList, setFeatureList] = useState(features);
+  const [addFeatOpen, setAddFeatOpen] = useState(false);
+  const [addFeatLabel, setAddFeatLabel] = useState("");
+  const [adding, setAdding] = useState(false);
+
+  const submitAddFeature = async () => {
+    const label = addFeatLabel.trim();
+    if (!label) return;
+
+    // evit duplicatel
+    if (
+      featureList.some((f) => f.label.toLowerCase() === label.toLowerCase())
+    ) {
+      toast.error("Există deja un serviciu cu acest nume.");
+      return;
+    }
+
+    try {
+      setAdding(true);
+      // endpoint-ul
+      const res = await fetch(`/api/projects/${project.slug}/features`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ label }),
+      });
+      if (!res.ok) throw new Error();
+
+      const created: Feature = await res.json(); // { id, key, label }
+      setFeatureList((prev) => [...prev, created]);
+      setAddFeatLabel("");
+      setAddFeatOpen(false);
+      toast.success("Serviciu adăugat.");
+    } catch {
+      toast.error("Nu am putut adăuga serviciul.");
+    } finally {
+      setAdding(false);
+    }
+  };
+  // ----------------------------------------------------
+
+  const [selected, setSelected] = useState<number[]>([]);
+
+  const toggle = (id: number, checked: boolean) =>
+    setSelected((prev) =>
+      checked ? [...prev, id] : prev.filter((x) => x !== id)
+    );
+
+  const unselect = (id: number) =>
+    setSelected((prev) => prev.filter((x) => x !== id));
+
+  const selectedFeatures = featureList.filter((f) => selected.includes(f.id));
+
+  const [confirmFeatOpen, setConfirmFeatOpen] = useState(false);
+  const [deletingFeatures, setDeletingFeatures] = useState(false);
+
+  const handleConfirmDeleteFeatures = async () => {
+    try {
+      setDeletingFeatures(true);
+      const res = await fetch(`/api/projects/${project.slug}/features`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ featureIds: selected }),
+      });
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || "Delete failed");
+      }
+
+      setFeatureList((prev) => prev.filter((f) => !selected.includes(f.id)));
+      setSelected([]);
+      toast.success("Serviciile selectate au fost șterse.");
+    } catch (e: any) {
+      toast.error(e?.message || "Nu am putut șterge serviciile selectate.");
+    } finally {
+      setDeletingFeatures(false);
+      setConfirmFeatOpen(false);
+    }
+  };
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-3 p-6">
+      {/* titlu + descriere */}
+      <Card className="lg:col-span-1 h-[calc(93vh-3rem)] overflow-y-auto overflow-x-hidden">
+        <CardHeader>
+          <div className="relative flex items-center">
+            {!isEditing && (
+              <CardTitle className="absolute left-1/2 -translate-x-1/2 text-lg text-center">
+                {project.name}
+              </CardTitle>
+            )}
+
+            {isEditing ? (
+              <div className="w-full">
+                <Input
+                  value={draftName}
+                  onChange={(e) => setDraftName(e.target.value)}
+                  className="text-lg w-full"
+                  placeholder="Titlu proiect"
+                />
+                <div
+                  className={`text-sm mt-1 ${
+                    draftName.trim().length < 10
+                      ? "text-red-500"
+                      : "text-green-600"
+                  }`}
+                >
+                  {draftName.trim().length}/10 caractere
+                </div>
+              </div>
+            ) : (
+              canEdit && (
+                <div className="ml-auto flex items-center gap-2">
+                  <button
+                    className="cursor-pointer p-2 rounded-md hover:bg-accent"
+                    aria-label="Editează"
+                    onClick={startEdit}
+                  >
+                    <Pencil className="size-5" />
+                  </button>
+
+                  <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                    <AlertDialogTrigger asChild>
+                      <button
+                        className="cursor-pointer p-2 rounded-md hover:bg-accent"
+                        aria-label="Șterge proiect"
+                        onClick={deleteProject}
+                        disabled={deleting}
+                      >
+                        <Trash2 className="size-5" />
+                      </button>
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent className="border-2 border-red-500 animate-shake">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-red-600">
+                          Această acțiune este ireversibilă!
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Ești sigur că vrei să ștergi proiectul? Nu vei putea
+                          anula această acțiune.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Nu</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleConfirmDelete}
+                          className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
+                        >
+                          Șterge
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              )
+            )}
+          </div>
+        </CardHeader>
+
+        <CardContent className="text-sm text-muted-foreground">
+          {isEditing ? (
+            <>
+              <Textarea
+                value={draftDetails}
+                onChange={(e) => {
+                  setDraftDetails(e.target.value);
+                  e.currentTarget.style.height = "auto";
+                  e.currentTarget.style.height =
+                    e.currentTarget.scrollHeight + "px";
+                }}
+                placeholder="Descriere proiect"
+                className="w-full rounded-md border px-3 py-2 text-sm outline-none resize-none overflow-hidden"
+              />
+
+              {/* ✅ Counter caractere */}
+              <div
+                className={`text-sm mt-1 ${
+                  draftDetails.trim().length < 50
+                    ? "text-red-500"
+                    : "text-green-600"
+                }`}
+              >
+                {draftDetails.trim().length}/50 caractere
+              </div>
+
+              <div className="mt-4 flex items-center justify-end gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={cancelEdit}
+                  disabled={saving}
+                  className="cursor-pointer"
+                >
+                  Renunță la modificări
+                </Button>
+                <Button
+                  variant="success"
+                  onClick={saveEdit}
+                  disabled={
+                    saving ||
+                    draftDetails.trim().length < 50 ||
+                    draftName.trim().length < 10
+                  }
+                  className="cursor-pointer"
+                >
+                  {saving ? "Se salvează..." : "Salvează modificările"}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] break-all text-left w-full">
+              {project.details || "—"}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* lista features + sectiunea de generate key */}
+      <div className="lg:col-span-2 flex flex-col gap-6">
+        {/* lista features */}
+        <Card>
+          <CardHeader className="flex items-center">
+            <CardTitle className="text-center text-lg flex-1">
+              Servicii
+            </CardTitle>
+
+            {canEdit && (
+              <div className="ml-auto">
+                <AlertDialog open={addFeatOpen} onOpenChange={setAddFeatOpen}>
+                  <AlertDialogTrigger asChild>
+                    <button
+                      className="cursor-pointer p-2 rounded-md hover:bg-accent"
+                      aria-label="Adaugă serviciu"
+                      onClick={() => setAddFeatOpen(true)}
+                    >
+                      <CirclePlus className="size-5" />
+                    </button>
+                  </AlertDialogTrigger>
+
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Adaugă serviciu</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Introdu denumirea serviciului pe care vrei să îl adaugi
+                        la proiect.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    <div className="mt-2">
+                      <Input
+                        autoFocus
+                        placeholder="Ex: Export CSV"
+                        value={addFeatLabel}
+                        onChange={(e) => setAddFeatLabel(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") submitAddFeature();
+                        }}
+                      />
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {addFeatLabel.trim().length} caractere
+                      </div>
+                    </div>
+
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="cursor-pointer">
+                        Renunță
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        className="cursor-pointer bg-green-600"
+                        disabled={adding || addFeatLabel.trim().length === 0}
+                        onClick={submitAddFeature}
+                      >
+                        {adding ? "Se adaugă..." : "Adaugă"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            )}
+          </CardHeader>
+
+          <CardContent className="p-4">
+            <div className="mx-auto w-[100%] rounded-md border">
+              <div className="max-h-[38vh] overflow-auto">
+                <Table
+                  className="
+                    w-full table-fixed
+                    [&_th]:align-middle [&_td]:align-middle
+                    [&_th]:px-8 [&_td]:px-8
+                    [&_th:first-child]:pl-6 [&_td:first-child]:pl-6
+                    [&_th:last-child]:pr-6  [&_td:last-child]:pr-6
+                    [&_th:last-child]:text-right [&_td:last-child]:text-right
+                  "
+                >
+                  <colgroup>
+                    <col className="w-1/2" />
+                    <col className="w-1/2" />
+                  </colgroup>
+
+                  <TableHeader className="sticky top-0 bg-background">
+                    <TableRow>
+                      <TableHead className="w-1/2">Denumire</TableHead>
+                      <TableHead className="w-1/2">Alege</TableHead>
+                    </TableRow>
+                  </TableHeader>
+
+                  <TableBody>
+                    {featureList.map((f) => {
+                      const checked = selected.includes(f.id);
+                      return (
+                        <TableRow
+                          key={f.id}
+                          data-state={checked ? "selected" : undefined}
+                          className="cursor-pointer hover:bg-accent/40 data-[state=selected]:bg-accent/60 transition-colors"
+                          onClick={() => toggle(f.id, !checked)}
+                        >
+                          <TableCell className="w-1/2">
+                            <div className="font-medium">{f.label}</div>
+                            {/* <div className="text-xs text-muted-foreground">{f.key}</div> */}
+                          </TableCell>
+
+                          <TableCell className="w-1/2 text-right">
+                            <span
+                              className="inline-flex"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Checkbox
+                                checked={checked}
+                                onCheckedChange={(v) =>
+                                  toggle(f.id, Boolean(v))
+                                }
+                                aria-label={`Selectează ${f.label}`}
+                              />
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* sectiunea de generate key */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-center text-lg">Obține cheia</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="text-sm text-muted-foreground">
+                Servicii alese:
+              </div>
+
+              <div className="rounded-md border p-3 min-h-16">
+                {selectedFeatures.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">
+                    - niciunul -
+                  </div>
+                ) : (
+                  <TooltipProvider delayDuration={150}>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedFeatures.map((f) => (
+                        <Badge
+                          key={f.id}
+                          variant="outline"
+                          className="inline-flex items-center gap-1 text-muted-foreground pl-2 pr-1"
+                        >
+                          <span>{f.label}</span>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                onClick={() => unselect(f.id)}
+                                className="ml-1 rounded p-0.5 hover:bg-muted cursor-pointer"
+                                aria-label={`Elimină ${f.label}`}
+                              >
+                                <X className="size-3" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">Elimină</TooltipContent>
+                          </Tooltip>
+                        </Badge>
+                      ))}
+                    </div>
+                  </TooltipProvider>
+                )}
+              </div>
+
+              <Separator />
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="success"
+                  className="cursor-pointer"
+                  disabled={selectedFeatures.length === 0}
+                  onClick={() => toast.error("Zonă în construcție...")}
+                >
+                  Generează licența!
+                </Button>
+
+                {canEdit && selected.length > 0 && (
+                  <AlertDialog
+                    open={confirmFeatOpen}
+                    onOpenChange={setConfirmFeatOpen}
+                  >
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        className="cursor-pointer"
+                        onClick={() => setConfirmFeatOpen(true)}
+                        title="Șterge serviciile selectate"
+                      >
+                        Șterge serviciile selectate
+                      </Button>
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent className="border-2 border-red-500 animate-shake">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-red-600">
+                          Această acțiune este ireversibilă!
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Ești sigur că vrei să ștergi elementele selectate? Nu
+                          vei putea anula această acțiune.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="cursor-pointer">
+                          Renunță
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 cursor-pointer"
+                          onClick={handleConfirmDeleteFeatures}
+                          disabled={deletingFeatures}
+                        >
+                          {deletingFeatures ? "Se șterge..." : "Șterge"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

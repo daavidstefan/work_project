@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
-export function TableButton({ slug }: { slug: string }) {
+export function TableButton({
+  slug,
+  label = "Vezi",
+}: {
+  slug: string;
+  label?: string;
+}) {
   const router = useRouter();
   return (
     <Button
@@ -9,7 +15,7 @@ export function TableButton({ slug }: { slug: string }) {
       size="sm"
       onClick={() => router.push(`/projects/${slug}`)}
     >
-      Vezi
+      {label}
     </Button>
   );
 }

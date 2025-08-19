@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   if (!session)
     return NextResponse.json({ error: "Neautentificat" }, { status: 401 });
 
-  const userId = (session.user as any)?.id; // <-- sub / providerAccountId ( de la keycloak )
+  const userId = (session.user as any)?.id; // <-- sub / providerAccountId de la keycloak
   if (!userId)
     return NextResponse.json(
       { error: "Lipsește sub (id) în sesiune" },
@@ -71,10 +71,10 @@ export async function POST(req: NextRequest) {
 
     // creaza proiectul + created_by
     const projRes = await client.query(
-      `INSERT INTO projects (slug, name, details, created_at, created_by)
-       VALUES ($1, $2, $3, NOW(), $4)
+      `INSERT INTO projects (slug, name, details, created_at, created_by, author_sub_id)
+       VALUES ($1, $2, $3, NOW(), $4, $5)
        RETURNING id, slug`,
-      [slug, name, details ?? null, createdBy]
+      [slug, name, details ?? null, createdBy, userId]
     );
     const projectId: number = projRes.rows[0].id;
 
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
 
     await client.query("COMMIT");
     return NextResponse.json(
-      { id: projectId, slug, created_by: createdBy },
+      { id: projectId, slug, created_by: createdBy, author_sub_id: userId },
       { status: 201 }
     );
   } catch (e) {

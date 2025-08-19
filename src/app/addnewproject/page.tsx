@@ -15,6 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useRouter } from "next/navigation";
 
 interface Feature {
   key: string;
@@ -22,6 +23,7 @@ interface Feature {
 }
 
 export default function AddNewProject() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [details, setDetails] = useState("");
   const [features, setFeatures] = useState<Feature[]>([]);
@@ -60,6 +62,12 @@ export default function AddNewProject() {
       toast.error("Titlul proiectului este obligatoriu");
       return;
     }
+
+    if (name.trim().length < 10) {
+      toast.error("Titlul trebuie să aibă minim 10 caractere");
+      return;
+    }
+
     if (details.trim().length < 50) {
       toast.error("Descrierea trebuie să aibă minim 50 de caractere");
       return;
@@ -85,13 +93,14 @@ export default function AddNewProject() {
       if (!res.ok) {
         throw new Error(data?.error || "Eroare la salvare");
       }
-      toast.success("Proiect Adaugat");
+      toast.success("Proiect adăugat");
+      router.push("/listofprojects");
       setName("");
       setDetails("");
       setFeatures([]);
       setFeatInput("");
     } catch (error: any) {
-      toast.error(error.message || "A aparut o eroare");
+      toast.error(error.message || "A apărut o eroare");
     } finally {
       setLoading(false);
     }
@@ -99,12 +108,10 @@ export default function AddNewProject() {
 
   return (
     <div className="p-6">
-      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(55vw-3rem)] h-[calc(92vh-3rem)] overflow-y-auto p-6">
+      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] overflow-y-auto p-6">
         <CardHeader>
           <div className="h-full flex flex-col items-center justify-center text-center gap-2">
-            <CardTitle className="text-lg align-center">
-              Adaugă un proiect nou
-            </CardTitle>
+            <CardTitle className="text-lg">Adaugă un proiect nou</CardTitle>
           </div>
         </CardHeader>
         <Separator />
@@ -116,6 +123,13 @@ export default function AddNewProject() {
               placeholder="Introdu titlul proiectului..."
               className="w-full rounded-md border px-3 py-2 text-sm outline-none"
             />
+            <div
+              className={`text-sm mt-1 ${
+                name.trim().length < 10 ? "text-red-500" : "text-green-600"
+              }`}
+            >
+              {name.trim().length}/10 caractere
+            </div>
           </div>
           <div className="p-2">
             <Textarea
@@ -149,9 +163,7 @@ export default function AddNewProject() {
               placeholder="Adaugă un serviciu..."
               className="flex-1 rounded-md border px-3 py-2 text-sm outline-none"
             />
-            <Button onClick={addFeature} className="shrink-0">
-              Adaugă
-            </Button>
+            <Button onClick={addFeature}>Adaugă</Button>
           </div>
           <div className="p-2">
             <Card>
@@ -194,9 +206,11 @@ export default function AddNewProject() {
           </div>
         </CardContent>
         <Separator />
-        <Button onClick={pushToDatabase} disabled={loading}>
-          {loading ? "Se salvează..." : "Adaugă proiectul"}
-        </Button>
+        <div className="flex justify-center">
+          <Button onClick={pushToDatabase} disabled={loading} variant="success">
+            {loading ? "Se salvează..." : "Adaugă proiectul"}
+          </Button>
+        </div>
       </Card>
     </div>
   );

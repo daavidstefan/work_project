@@ -1,10 +1,8 @@
 "use client";
-import { useState } from "react";
+
 import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
-  const [role, setRole] = useState<"client" | "provider">("client");
-
   const handleLogin = () => {
     signIn("keycloak", { callbackUrl: "/listofprojects" });
   };
