@@ -167,7 +167,6 @@ export default function ProjectDetails({
       setAdding(false);
     }
   };
-  // ----------------------------------------------------
 
   const [selected, setSelected] = useState<number[]>([]);
 
@@ -303,7 +302,6 @@ export default function ProjectDetails({
                 className="w-full rounded-md border px-3 py-2 text-sm outline-none resize-none overflow-hidden"
               />
 
-              {/* ✅ Counter caractere */}
               <div
                 className={`text-sm mt-1 ${
                   draftDetails.trim().length < 50

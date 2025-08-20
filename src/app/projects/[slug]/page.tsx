@@ -6,7 +6,6 @@
 import { pg } from "@@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@@/lib/auth";
-import { notFound } from "next/navigation";
 import ProjectDetails from "./project-details";
 
 type PageProps = { params: { slug: string } };
@@ -51,9 +50,7 @@ export default async function ProjectPage({
     );
   }
 
-  const roles = (session as any)?.user?.roles as string[] | undefined;
-  const isAdmin = roles?.includes("admin") ?? false;
-  const canEdit = !!meSub && (meSub === project.author_sub_id || isAdmin);
+  const canEdit = !!meSub && meSub === project.author_sub_id;
 
   // features
   const { rows: features } = await pg.query<{
