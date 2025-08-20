@@ -1,3 +1,4 @@
+// pagina care afiseaza detaliile unui proiect
 // citirea slug-ului
 // interogarea db
 // trimite props catre ProjectDetailsClient
@@ -57,10 +58,10 @@ export default async function ProjectPage({
   // features
   const { rows: features } = await pg.query<{
     id: number;
-    key: string; // acum e string
+    key: string; // rămâne "key" în TypeScript, dar îl obținem ca alias
     label: string;
   }>(
-    `SELECT id, COALESCE(key, '') AS key, label
+    `SELECT id, feature_key AS key, label
    FROM features
    WHERE project_id = $1
    ORDER BY label`,

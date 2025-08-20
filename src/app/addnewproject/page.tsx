@@ -1,3 +1,5 @@
+// pagina pentru adaugarea unui proiect nou
+
 "use client";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -41,6 +43,7 @@ export default function AddNewProject() {
       return;
     }
 
+    // genereaza un key unic pentru feature
     const key =
       label
         .toLowerCase()
@@ -78,6 +81,7 @@ export default function AddNewProject() {
       return;
     }
 
+    // trimite datele catre server
     setLoading(true);
     try {
       const res = await fetch("/api/projects", {

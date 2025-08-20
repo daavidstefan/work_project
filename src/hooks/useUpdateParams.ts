@@ -1,4 +1,4 @@
-// hook pentru a schimba parametrii din url (pentru filtrare)
+// hook care actualizeaza parametrii din url pentru filtrare
 
 "use client";
 

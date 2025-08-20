@@ -1,4 +1,5 @@
-// components/my-projects-table.tsx
+// tabel pentru proiectele mele
+
 "use client";
 
 import {

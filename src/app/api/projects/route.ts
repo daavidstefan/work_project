@@ -1,3 +1,5 @@
+// endpoint pentru crearea proiectelor
+
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@@/lib/auth";
@@ -10,12 +12,13 @@ export async function POST(req: NextRequest) {
   if (!session)
     return NextResponse.json({ error: "Neautentificat" }, { status: 401 });
 
-  const userId = (session.user as any)?.id; // <-- sub / providerAccountId de la keycloak
-  if (!userId)
+  const userId = (session.user as any)?.id; // sub Keycloak
+  if (!userId) {
     return NextResponse.json(
       { error: "Lipsește sub (id) în sesiune" },
       { status: 401 }
     );
+  }
 
   let body: any;
   try {
@@ -38,7 +41,7 @@ export async function POST(req: NextRequest) {
 
   const client = await pool.connect();
   try {
-    // citeste autorul din users
+    // autor
     const userRes = await client.query(
       `SELECT name, username, email FROM users WHERE id = $1 LIMIT 1`,
       [userId]
@@ -69,7 +72,7 @@ export async function POST(req: NextRequest) {
       slug = `${slugBase}-${i}`;
     }
 
-    // creaza proiectul + created_by
+    // creează proiectul
     const projRes = await client.query(
       `INSERT INTO projects (slug, name, details, created_at, created_by, author_sub_id)
        VALUES ($1, $2, $3, NOW(), $4, $5)
@@ -78,25 +81,14 @@ export async function POST(req: NextRequest) {
     );
     const projectId: number = projRes.rows[0].id;
 
-    // features + mapare
-    const featureIds: number[] = [];
+    // upsert features legate direct la proiect
     for (const f of features) {
-      const upsert = await client.query(
-        `INSERT INTO features ("key", label)
-         VALUES ($1, $2)
-         ON CONFLICT ("key") DO UPDATE SET label = EXCLUDED.label
-         RETURNING id`,
-        [f.key, f.label]
-      );
-      featureIds.push(upsert.rows[0].id);
-    }
-
-    for (const fid of featureIds) {
       await client.query(
-        `INSERT INTO project_features (project_id, feature_id)
-         VALUES ($1, $2)
-         ON CONFLICT DO NOTHING`,
-        [projectId, fid]
+        `INSERT INTO features (project_id, feature_key, label)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (project_id, feature_key) DO UPDATE
+           SET label = EXCLUDED.label`,
+        [projectId, f.key, f.label]
       );
     }
 

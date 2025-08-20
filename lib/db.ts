@@ -1,3 +1,5 @@
+// initializeaza conexiunea la baza de date postgres
+
 import { Pool } from "pg";
 
 const globalForPg = global as unknown as { pgPool?: Pool };

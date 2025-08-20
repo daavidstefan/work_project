@@ -1,3 +1,6 @@
+// meniul de navigare principal
+// contine sheet-ul cu datele contului (facut partial)
+
 "use client";
 
 import Link from "next/link";

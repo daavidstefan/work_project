@@ -1,3 +1,5 @@
+// gestioneaza autentificarea cu keycloak si setarile nextauth
+
 import { NextAuthOptions } from "next-auth";
 import KeycloakProvider from "next-auth/providers/keycloak";
 import { pg } from "@@/lib/db";

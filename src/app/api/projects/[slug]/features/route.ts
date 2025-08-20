@@ -1,19 +1,20 @@
+// rute api pentru gestionarea feature urilor unui proiect
+
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@@/lib/auth";
 import { pg } from "@@/lib/db";
 
+// incarca proiectul din baza de date
 async function loadProject(slug: string) {
   const { rows } = await pg.query<{ id: number; author_sub_id: string }>(
-    `SELECT id, author_sub_id
-     FROM projects
-     WHERE slug = $1
-     LIMIT 1`,
+    `SELECT id, author_sub_id FROM projects WHERE slug = $1 LIMIT 1`,
     [slug]
   );
   return rows[0] ?? null;
 }
 
+// verifica daca utilizatorul poate edita proiectul
 function canEditProject(session: any, project: { author_sub_id: string }) {
   const meSub = session?.user?.id ?? session?.user?.sub ?? null;
   const roles: string[] | undefined = session?.user?.roles;
@@ -26,7 +27,6 @@ export async function POST(
   ctx: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await ctx.params;
-
   const session = await getServerSession(authOptions);
   if (!session)
     return NextResponse.json({ error: "Neautentificat" }, { status: 401 });
@@ -53,15 +53,15 @@ export async function POST(
     key: string | null;
     label: string;
   }>(
-    `INSERT INTO features (project_id, key, label)
+    `INSERT INTO features (project_id, feature_key, label)
      VALUES ($1, $2, $3)
-     ON CONFLICT (project_id, lower(label)) DO UPDATE
-       SET key = EXCLUDED.key
-     RETURNING id, key, label`,
+     ON CONFLICT (project_id, feature_key) DO UPDATE
+       SET label = EXCLUDED.label
+     RETURNING id, feature_key AS key, label`,
     [project.id, key, clean]
   );
 
-  return NextResponse.json(rows[0]);
+  return NextResponse.json(rows[0], { status: 201 });
 }
 
 export async function DELETE(
@@ -69,7 +69,6 @@ export async function DELETE(
   ctx: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await ctx.params;
-
   const session = await getServerSession(authOptions);
   if (!session)
     return NextResponse.json({ error: "Neautentificat" }, { status: 401 });

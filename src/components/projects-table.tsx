@@ -1,3 +1,4 @@
+// tabel cu toate proiectele
 // primeste props de la \listofprojects\page.tsx
 // realizeaza sortarea
 // populeaza tabelul de proiecte

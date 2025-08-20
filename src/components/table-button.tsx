@@ -1,3 +1,5 @@
+// buton folosit in tabele
+
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 

@@ -1,3 +1,4 @@
+// pagina care afiseaza lista tuturor proiectelor
 // citirea parametrilor din url
 // interogarea db
 // trimite props catre \components\projects-table

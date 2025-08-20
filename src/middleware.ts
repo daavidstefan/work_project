@@ -1,4 +1,5 @@
-// middleware.ts
+// middleware pentru redirecturi si protectie
+
 import { withAuth } from "next-auth/middleware";
 
 export default withAuth({

@@ -1,3 +1,5 @@
+// componenta care arata de cand este conectat utilizatorul
+
 "use client";
 import { useEffect, useState } from "react";
 

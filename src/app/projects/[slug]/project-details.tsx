@@ -1,5 +1,5 @@
-// primește props de la \projects\[slug]\page.tsx
-// afișează datele despre proiect în UI + (opțional) controale de editare
+// componenta care afiseaza detaliile proiectului si controale de editare
+// primeste props de la \projects\[slug]\page.tsx
 
 "use client";
 
@@ -86,13 +86,13 @@ export default function ProjectDetails({
       });
       if (!res.ok) throw new Error("Save failed");
 
-      toast.success("Modificări salvate");
+      toast.success("Modificări salvate!");
       project.name = draftName;
       project.details = draftDetails;
       setIsEditing(false);
       router.refresh?.();
-    } catch (e) {
-      toast.error("Nu am putut salva modificările");
+    } catch (error) {
+      toast.error("Nu am putut salva modificările!");
     } finally {
       setSaving(false);
     }
@@ -119,10 +119,10 @@ export default function ProjectDetails({
       });
       if (!res.ok) throw new Error("Delete failed");
 
-      toast.success("Proiect șters");
+      toast.success("Proiect șters!");
       router.push("/myprojects");
     } catch (e) {
-      toast.error("Nu am putut șterge proiectul");
+      toast.error("Nu am putut șterge proiectul.");
     } finally {
       setDeleting(false);
       setConfirmOpen(false);
