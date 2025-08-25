@@ -225,7 +225,7 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
                   update(
                     { name: null, author: null, sort: null, order: null },
                     "push"
-                  ); // <- fix aici
+                  );
                 }}
                 variant="destructive"
                 className="cursor-pointer"

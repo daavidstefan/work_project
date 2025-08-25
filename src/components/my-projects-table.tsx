@@ -32,6 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Separator } from "@radix-ui/react-separator";
 
 type Project = {
   id: number;
@@ -83,7 +84,7 @@ export default function MyProjectsTable({ projects }: { projects: Project[] }) {
             <CardTitle className="text-lg">Proiectele mele</CardTitle>
           </div>
         </CardHeader>
-
+        <Separator />
         <CardContent className="flex-1">
           <Table>
             <TableHeader>
@@ -96,7 +97,10 @@ export default function MyProjectsTable({ projects }: { projects: Project[] }) {
             <TableBody>
               {!hasData ? (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-muted-foreground">
+                  <TableCell
+                    colSpan={3}
+                    className="text-muted-foreground text-center p-6"
+                  >
                     Nu ai proiecte încă.
                   </TableCell>
                 </TableRow>

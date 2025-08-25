@@ -55,7 +55,6 @@ export default function NavigationBar() {
   const { data: session, status } = useSession();
   const username = session?.user?.name;
   const [open, setOpen] = useState(false);
-  // const []
 
   // salveaza ora de login
   useEffect(() => {
@@ -202,7 +201,6 @@ export default function NavigationBar() {
 
                 <AlertDialogContent className="border-1 border-red-500 animate-shake">
                   {" "}
-                  {/* opțional: z-index mai mare */}
                   <AlertDialogHeader>
                     <AlertDialogTitle className="text-red-600">
                       Această acțiune este ireversibilă!
@@ -249,7 +247,6 @@ export default function NavigationBar() {
           </SheetContent>
         </Sheet>
 
-        {/* Navigation menu după icon */}
         <NavigationMenu className="ml-4">
           <NavigationMenuList>
             <NavigationMenuItem>

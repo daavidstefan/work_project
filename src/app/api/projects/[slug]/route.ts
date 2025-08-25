@@ -19,7 +19,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Lipsește sub (id)" }, { status: 401 });
   }
 
-  const slug = params.slug;
+  const { slug } = await params;
   const body = await req.json();
   const { name, details } = body as { name: string; details: string };
 
@@ -72,7 +72,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Lipsește sub (id)" }, { status: 401 });
   }
 
-  const slug = params.slug;
+  const { slug } = await params;
 
   try {
     const { rows } = await pg.query<{ author_sub_id: string }>(
@@ -101,4 +101,14 @@ export async function DELETE(
     console.error(err);
     return NextResponse.json({ error: "Eroare server" }, { status: 500 });
   }
+}
+
+export async function GENERATE_KEY(
+  req: NextRequest,
+  { params }: { params: { slug: string; licenseKey: string } }
+) {
+  const session = await getServerSession(authOptions);
+  // aici voi implementa introducerea in db a cheii,
+  // a userului care a generat-o, si alte date relevante
+  // despre cheie la care o sa ma mai gandesc.
 }

@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       slug = `${slugBase}-${i}`; // daca exista deja slung face ++
     }
 
-    // creează proiectul
+    // creeaza proiectul
     const projRes = await client.query(
       `INSERT INTO projects (slug, name, details, created_at, created_by, author_sub_id)
        VALUES ($1, $2, $3, NOW(), $4, $5)

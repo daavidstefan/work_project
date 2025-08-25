@@ -52,7 +52,7 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, account, profile }) {
-      console.log("jwt callback", token, account, profile);
+      // console.log("jwt callback", token, account, profile);
       // pune sub in token
       if (account && profile) {
         const decoded = jwtDecode(account.access_token!);

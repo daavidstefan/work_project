@@ -29,8 +29,9 @@ export default async function ProjectPage({
     slug: string;
     author_sub_id: string;
     created_at: string;
+    created_by: string;
   }>(
-    `SELECT id, name, details, slug, author_sub_id, created_at
+    `SELECT id, name, details, slug, author_sub_id, created_at, created_by
      FROM projects
      WHERE slug = $1
      LIMIT 1`,
@@ -73,6 +74,7 @@ export default async function ProjectPage({
         name: project.name,
         details: project.details ?? "",
         created_at: project.created_at,
+        created_by: project.created_by,
       }}
       features={features}
       canEdit={canEdit}
