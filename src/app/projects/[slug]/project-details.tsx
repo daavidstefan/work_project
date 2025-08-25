@@ -213,18 +213,20 @@ export default function ProjectDetails({
       <Card className="lg:col-span-1 h-[calc(93vh-3rem)] overflow-y-auto overflow-x-hidden">
         <CardHeader>
           <div className="relative flex items-center">
+            {/* Titlu centrat pe CARD (doar când nu editezi) */}
             {!isEditing && (
               <CardTitle className="absolute left-1/2 -translate-x-1/2 text-lg text-center">
                 {project.name}
               </CardTitle>
             )}
 
-            {isEditing ? (
+            {/* Când editezi: inputul ocupă linia */}
+            {isEditing && (
               <div className="w-full">
                 <Input
                   value={draftName}
                   onChange={(e) => setDraftName(e.target.value)}
-                  className="text-lg w-full"
+                  className="text-lg w-full text-center"
                   placeholder="Titlu proiect"
                 />
                 <div
@@ -232,58 +234,62 @@ export default function ProjectDetails({
                     draftName.trim().length < 10
                       ? "text-red-500"
                       : "text-green-600"
-                  }`}
+                  } text-center`}
                 >
                   {draftName.trim().length}/10 caractere
                 </div>
               </div>
-            ) : (
-              canEdit && (
-                <div className="ml-auto flex items-center gap-2">
+            )}
+
+            {/* Dreapta: controale — rămân în layout mereu (invizibile la nevoie) */}
+            <div
+              className={`ml-auto flex items-center gap-2 ${
+                !isEditing && canEdit ? "" : "opacity-0 pointer-events-none"
+              }`}
+            >
+              <button
+                className="cursor-pointer p-2 rounded-md hover:bg-accent"
+                aria-label="Editează"
+                onClick={startEdit}
+                disabled={!canEdit}
+              >
+                <Pencil className="size-5" />
+              </button>
+
+              <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                <AlertDialogTrigger asChild>
                   <button
                     className="cursor-pointer p-2 rounded-md hover:bg-accent"
-                    aria-label="Editează"
-                    onClick={startEdit}
+                    aria-label="Șterge proiect"
+                    onClick={deleteProject}
+                    disabled={!canEdit || deleting}
                   >
-                    <Pencil className="size-5" />
+                    <Trash2 className="size-5" />
                   </button>
+                </AlertDialogTrigger>
 
-                  <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                    <AlertDialogTrigger asChild>
-                      <button
-                        className="cursor-pointer p-2 rounded-md hover:bg-accent"
-                        aria-label="Șterge proiect"
-                        onClick={deleteProject}
-                        disabled={deleting}
-                      >
-                        <Trash2 className="size-5" />
-                      </button>
-                    </AlertDialogTrigger>
-
-                    <AlertDialogContent className="border-2 border-red-500 animate-shake">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-red-600">
-                          Această acțiune este ireversibilă!
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Ești sigur că vrei să ștergi proiectul? Nu vei putea
-                          anula această acțiune.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Nu</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={handleConfirmDelete}
-                          className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
-                        >
-                          Șterge
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              )
-            )}
+                <AlertDialogContent className="border-2 border-red-500 animate-shake">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-red-600">
+                      Această acțiune este ireversibilă!
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Ești sigur că vrei să ștergi proiectul? Nu vei putea anula
+                      această acțiune.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Nu</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleConfirmDelete}
+                      className="bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
+                    >
+                      Șterge
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
         </CardHeader>
 
@@ -347,19 +353,25 @@ export default function ProjectDetails({
       <div className="lg:col-span-2 flex flex-col gap-6">
         {/* lista features */}
         <Card>
-          <CardHeader className="flex items-center">
-            <CardTitle className="text-center text-lg flex-1">
+          <CardHeader className="relative flex items-center justify-center py-2">
+            <CardTitle className="absolute left-1/2 -translate-x-1/2 text-lg pointer-events-none">
               Servicii
             </CardTitle>
 
             {canEdit && (
-              <div className="ml-auto">
-                <AlertDialog open={addFeatOpen} onOpenChange={setAddFeatOpen}>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                {/* butonul tău */}
+                <AlertDialog
+                  open={addFeatOpen}
+                  onOpenChange={(o) => {
+                    setAddFeatOpen(o);
+                    if (!o) setAddFeatLabel(""); // reset la închidere
+                  }}
+                >
                   <AlertDialogTrigger asChild>
                     <button
                       className="cursor-pointer p-2 rounded-md hover:bg-accent"
                       aria-label="Adaugă serviciu"
-                      onClick={() => setAddFeatOpen(true)}
                     >
                       <CirclePlus className="size-5" />
                     </button>
@@ -369,24 +381,18 @@ export default function ProjectDetails({
                     <AlertDialogHeader>
                       <AlertDialogTitle>Adaugă serviciu</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Introdu denumirea serviciului pe care vrei să îl adaugi
-                        la proiect.
+                        Introdu denumirea unui nou serviciu pentru acest
+                        proiect.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
 
                     <div className="mt-2">
                       <Input
-                        autoFocus
-                        placeholder="Ex: Export CSV"
                         value={addFeatLabel}
                         onChange={(e) => setAddFeatLabel(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") submitAddFeature();
-                        }}
+                        placeholder="Ex: Export CSV"
+                        autoFocus
                       />
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {addFeatLabel.trim().length} caractere
-                      </div>
                     </div>
 
                     <AlertDialogFooter>
@@ -395,8 +401,8 @@ export default function ProjectDetails({
                       </AlertDialogCancel>
                       <AlertDialogAction
                         className="cursor-pointer bg-green-600"
-                        disabled={adding || addFeatLabel.trim().length === 0}
                         onClick={submitAddFeature}
+                        disabled={adding || !addFeatLabel.trim()}
                       >
                         {adding ? "Se adaugă..." : "Adaugă"}
                       </AlertDialogAction>
@@ -473,8 +479,10 @@ export default function ProjectDetails({
 
         {/* sectiunea de generate key */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-center text-lg">Obține cheia</CardTitle>
+          <CardHeader className="relative flex items-center justify-center py-2">
+            <CardTitle className="absolute left-1/2 -translate-x-1/2 text-lg">
+              Obține cheia
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

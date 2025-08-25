@@ -55,7 +55,7 @@ export default async function ProjectPage({
   // features
   const { rows: features } = await pg.query<{
     id: number;
-    key: string; // rămâne "key" în TypeScript, dar îl obținem ca alias
+    key: string;
     label: string;
   }>(
     `SELECT id, feature_key AS key, label

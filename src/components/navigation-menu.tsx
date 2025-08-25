@@ -35,6 +35,17 @@ import {
 import { ConnectedSince } from "@/components/connected-since";
 import { usePathname } from "next/navigation";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const NAVBAR_H = 56;
 
@@ -44,20 +55,31 @@ export default function NavigationBar() {
   const { data: session, status } = useSession();
   const username = session?.user?.name;
   const [open, setOpen] = useState(false);
+  // const []
 
   // salveaza ora de login
   useEffect(() => {
-    if (status === "authenticated" && !localStorage.getItem("loginAt")) {
+    // if (status === "authenticated" && !localStorage.getItem("loginAt")) {
+    //   localStorage.setItem("loginAt", Date.now().toString());
+    // }
+    if (!localStorage.getItem(`loginAt`)) {
       localStorage.setItem("loginAt", Date.now().toString());
     }
-    if (status === "unauthenticated") {
-      localStorage.removeItem("loginAt");
-    }
-  }, [status]);
-
+    // localStorage.setItem("loginAt", Date.now().toString());
+  }, []);
+  // console.log(
+  //   "@@@@@@@@@@@@@@@@@@@@@@@",
+  //   process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER
+  // );
   const handleLogout = async () => {
-    const idToken = (session as any)?.idToken as string | undefined;
+    localStorage.removeItem("loginAt");
+    const idToken = (session as any)?.id_token as string | undefined;
     try {
+      // console.log("aaaaaaaaaaaaaaa", idToken, JSON.stringify(session));
+      // console.log(
+      //   "------------------",
+      //   process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER
+      // );
       // curata sesiunea sso (sau cel putin incerc)
       if (idToken && process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER) {
         const url =
@@ -66,6 +88,7 @@ export default function NavigationBar() {
           `&post_logout_redirect_uri=${encodeURIComponent(
             `${window.location.origin}/login`
           )}`;
+
         await fetch(url, { credentials: "include" }).catch(() => {});
       }
       // logout din nextauth
@@ -80,6 +103,17 @@ export default function NavigationBar() {
       });
       // redirect /login
       window.location.href = "/login";
+    }
+  };
+
+  const deleteAccount = async () => {
+    localStorage.removeItem("loginAt");
+    const res = await fetch("/api/account/delete", { method: "DELETE" });
+    if (res.ok) {
+      await signOut({ callbackUrl: "/" });
+    } else {
+      const { error } = await res.json();
+      toast.error(error);
     }
   };
 
@@ -130,9 +164,7 @@ export default function NavigationBar() {
                 href="/myprojects"
                 onClick={() => setOpen(false)}
               >
-                <button className="cursor-pointer p-2 rounded-md hover:bg-accent">
-                  <Folder className="size-5" />
-                </button>
+                <Folder className="size-5" />
                 Proiectele mele
               </Link>
               <Link
@@ -143,9 +175,7 @@ export default function NavigationBar() {
                   setOpen(false);
                 }}
               >
-                <button className="cursor-pointer p-2 rounded-md hover:bg-accent">
-                  <FileCheck className="size-5" />
-                </button>
+                <FileCheck className="size-5" />
                 Licențele mele
               </Link>
               <Link
@@ -156,11 +186,47 @@ export default function NavigationBar() {
                   setOpen(false);
                 }}
               >
-                <button className="cursor-pointer p-2 rounded-md hover:bg-accent">
-                  <UserRoundCog className="size-5" />
-                </button>
+                <UserRoundCog className="size-5" />
                 Detaliile contului
               </Link>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="w-full text-left flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent text-red-600 cursor-pointer"
+                  >
+                    <CircleX className="size-5" />
+                    Șterge contul
+                  </button>
+                </AlertDialogTrigger>
+
+                <AlertDialogContent className="border-1 border-red-500 animate-shake">
+                  {" "}
+                  {/* opțional: z-index mai mare */}
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-red-600">
+                      Această acțiune este ireversibilă!
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Sigur vrei să îți ștergi contul? Dacă ai proiecte listate,
+                      acestea vor rămâne vizibile până când expiră ultima
+                      licență emisă. Alte licențe nu vor mai putea fi generate.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Anulează</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-red-600 hover:bg-red-700"
+                      onClick={async () => {
+                        await deleteAccount();
+                      }}
+                    >
+                      Confirmă
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
               <Link
                 className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
                 href=""
@@ -169,22 +235,7 @@ export default function NavigationBar() {
                   setOpen(false);
                 }}
               >
-                <button className="cursor-pointer p-2 rounded-md hover:bg-accent">
-                  <CircleX className="size-5" />
-                </button>
-                Șterge contul
-              </Link>
-              <Link
-                className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
-                href=""
-                onClick={() => {
-                  toast.error("Zonă în construcție...");
-                  setOpen(false);
-                }}
-              >
-                <button className="cursor-pointer p-2 rounded-md hover:bg-accent">
-                  <Phone className="size-5" />
-                </button>
+                <Phone className="size-5" />
                 Contact
               </Link>
             </nav>

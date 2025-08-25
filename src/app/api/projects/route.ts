@@ -14,10 +14,7 @@ export async function POST(req: NextRequest) {
 
   const userId = (session.user as any)?.id; // sub Keycloak
   if (!userId) {
-    return NextResponse.json(
-      { error: "Lipsește sub (id) în sesiune" },
-      { status: 401 }
-    );
+    return NextResponse.json({ status: 401 });
   }
 
   let body: any;
@@ -40,6 +37,7 @@ export async function POST(req: NextRequest) {
   }
 
   const client = await pool.connect();
+
   try {
     // autor
     const userRes = await client.query(
@@ -69,7 +67,7 @@ export async function POST(req: NextRequest) {
         [slug]
       );
       if (rows.length === 0) break;
-      slug = `${slugBase}-${i}`;
+      slug = `${slugBase}-${i}`; // daca exista deja slung face ++
     }
 
     // creează proiectul
