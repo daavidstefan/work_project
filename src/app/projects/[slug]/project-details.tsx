@@ -211,18 +211,22 @@ export default function ProjectDetails({
   };
 
   const generateLicense = async () => {
-    toast.error("Zonă în construcție...");
-    // const draftLicenseKey = randomBytes(16).toString("hex"); // dummy license key
-    // try {
-    //   const res = await fetch(`/api/projects/${project.slug}`, {
-    //     method: "GENERATE_KEY",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ licenseKey: draftLicenseKey }),
-    //   });
-    //   toast.success("cheie salvata --- vezi db");
-    // } catch (error) {
-    //   toast.error(JSON.stringify(error));
-    // }
+    try {
+      const res = await fetch(`/api/projects/${project.slug}/generate-key`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error);
+        return;
+      }
+      toast.success(data.message);
+      router.push("/my-licenses");
+      //toast.success("Cheia a fost generată cu succes!");
+    } catch (error) {
+      toast.error(JSON.stringify(error));
+    }
   };
 
   return (

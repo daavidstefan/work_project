@@ -102,13 +102,3 @@ export async function DELETE(
     return NextResponse.json({ error: "Eroare server" }, { status: 500 });
   }
 }
-
-export async function GENERATE_KEY(
-  req: NextRequest,
-  { params }: { params: { slug: string; licenseKey: string } }
-) {
-  const session = await getServerSession(authOptions);
-  // aici voi implementa introducerea in db a cheii,
-  // a userului care a generat-o, si alte date relevante
-  // despre cheie la care o sa ma mai gandesc.
-}
