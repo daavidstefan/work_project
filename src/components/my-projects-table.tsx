@@ -99,9 +99,9 @@ export default function MyProjectsTable({ projects }: { projects: Project[] }) {
                 <TableRow>
                   <TableCell
                     colSpan={3}
-                    className="text-muted-foreground text-center p-6"
+                    className="text-muted-foreground text-center py-24"
                   >
-                    Nu ai proiecte încă.
+                    Nu ai proiecte încă...
                   </TableCell>
                 </TableRow>
               ) : (

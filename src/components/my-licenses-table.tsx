@@ -1,4 +1,4 @@
-// tabel pentru proiectele mele
+// tabel pentru licentele mele
 
 "use client";
 
@@ -33,48 +33,21 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Separator } from "@radix-ui/react-separator";
+import { LicenseKeyCell } from "@/components/LicenseKeyCell";
+import { LicenseStatusCell } from "@/components/LicenseStatusCell";
 
-type Project = {
+type License = {
   id: number;
-  name: string;
-  created_at: string;
-  slug: string;
+  owner_id: string;
+  license_key: string;
+  created_at: Date;
+  expires_at: string;
+  status: string;
+  linked_project: string;
 };
 
-export default function MyLicensesTable({ projects }: { projects: Project[] }) {
-  const hasData = projects && projects.length > 0;
-  const router = useRouter();
-
-  // dialog state
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [target, setTarget] = useState<{ slug: string; name: string } | null>(
-    null
-  );
-
-  const openDelete = (slug: string, name: string) => {
-    setTarget({ slug, name });
-    setConfirmOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!target?.slug) return;
-    try {
-      setDeleting(true);
-      const res = await fetch(`/api/projects/${target.slug}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Delete failed");
-      toast.success("Proiect șters");
-      router.refresh();
-    } catch {
-      toast.error("Nu am putut șterge proiectul");
-    } finally {
-      setDeleting(false);
-      setConfirmOpen(false);
-      setTarget(null);
-    }
-  };
+export default function MyLicensesTable({ licenses }: { licenses: License[] }) {
+  const hasData = licenses && licenses.length > 0;
 
   return (
     <div className="p-6">
@@ -86,7 +59,48 @@ export default function MyLicensesTable({ projects }: { projects: Project[] }) {
         </CardHeader>
         <Separator />
         <CardContent className="flex-1">
-          <h1 className="text-center py-60">Work in progress...</h1>
+          {/* <h1 className="text-center py-60">Work in progress...</h1> */}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[10%]">ID</TableHead>
+                <TableHead className="w-[20%]">Proiect</TableHead>
+                <TableHead className="w-[25%]">Cheia</TableHead>
+                <TableHead className="w-[20%]">Data emiterii</TableHead>
+                <TableHead className="w-[20%]">Data expirării</TableHead>
+                <TableHead className="w-[18%]">Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {!hasData ? (
+                <TableRow disableHover>
+                  <TableCell
+                    colSpan={6}
+                    className="text-muted-foreground text-center py-24"
+                  >
+                    Nu am găsit nicio licență..
+                  </TableCell>
+                </TableRow>
+              ) : (
+                licenses.map((license) => (
+                  <TableRow key={license.id}>
+                    <TableCell>{license.id}</TableCell>
+                    <TableCell>{license.linked_project}</TableCell>
+                    <TableCell>
+                      <LicenseKeyCell value={license.license_key} />
+                    </TableCell>
+                    <TableCell>
+                      {license.created_at.toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>{license.expires_at}</TableCell>
+                    <TableCell>
+                      <LicenseStatusCell value={license.status} />
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
 
         <CardFooter className="text-sm text-muted-foreground justify-center">
