@@ -4,6 +4,7 @@ import { NextAuthOptions } from "next-auth";
 import KeycloakProvider from "next-auth/providers/keycloak";
 import { pg } from "@@/lib/db";
 import { jwtDecode } from "jwt-decode";
+// import { console } from "inspector";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -52,7 +53,9 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, account, profile }) {
-      // console.log("jwt callback", token, account, profile);
+      console.log("----------------------------------------------");
+      console.log("jwt callback", token, account, profile);
+      console.log("----------------------------------------------");
       // pune sub in token
       if (account && profile) {
         const decoded = jwtDecode(account.access_token!);
@@ -71,6 +74,8 @@ export const authOptions: NextAuthOptions = {
 
     async session({ session, token }) {
       // expune id/username/rol in sesiune
+      //console.log("----------------------------------------------");
+      //console.log(token);
       (session.user as any).id = token.sub;
       (session.user as any).role = token.role;
       (session as any).id_token = token.id_token;

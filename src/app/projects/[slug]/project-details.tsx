@@ -222,7 +222,7 @@ export default function ProjectDetails({
         return;
       }
       toast.success(data.message);
-      router.push("/my-licenses");
+      router.push("/mylicenses");
       //toast.success("Cheia a fost generată cu succes!");
     } catch (error) {
       toast.error(JSON.stringify(error));
