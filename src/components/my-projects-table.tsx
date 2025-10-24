@@ -86,12 +86,13 @@ export default function MyProjectsTable({ projects }: { projects: Project[] }) {
         </CardHeader>
         <Separator />
         <CardContent className="flex-1">
-          <Table>
+          <Table className="table-fixed">
             <TableHeader>
               <TableRow>
                 <TableHead>Denumire</TableHead>
-                <TableHead>Creat la</TableHead>
-                <TableHead className="text-right">Acțiuni</TableHead>
+                {/* Fără lățime, va umple spațiul rămas */}
+                <TableHead className="w-[180px]">Creat la</TableHead>
+                <TableHead className="w-[120px] text-right">Acțiuni</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -107,7 +108,9 @@ export default function MyProjectsTable({ projects }: { projects: Project[] }) {
               ) : (
                 projects.map((p) => (
                   <TableRow key={p.id}>
-                    <TableCell className="font-medium">{p.name}</TableCell>
+                    <TableCell className="font-medium">
+                      <div className="truncate max-w-[55ch]">{p.name}</div>
+                    </TableCell>
                     <TableCell>
                       {new Date(p.created_at).toLocaleString("ro-RO")}
                     </TableCell>

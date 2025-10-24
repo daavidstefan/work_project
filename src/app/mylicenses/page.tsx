@@ -19,7 +19,7 @@ type LicenseRow = {
 export default async function MyLicensesPage() {
   const session = await getServerSession(authOptions);
   const userSub = (session?.user as any)?.id || (session?.user as any)?.sub;
-  if (!userSub) return <div className="p-6">Nu s-a găsit sub-id.</div>;
+  if (!userSub) return <div className="p-6">Nu s-a gasit sub-id.</div>;
 
   const { rows: licenses } = await pg.query<LicenseRow>(
     `SELECT l.id,

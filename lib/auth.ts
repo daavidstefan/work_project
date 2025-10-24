@@ -30,23 +30,21 @@ export const authOptions: NextAuthOptions = {
         (profile as any)?.preferred_username ??
         (profile as any)?.username ??
         null;
-      const name =
-        (profile as any)?.name ??
-        (`${(profile as any)?.given_name ?? ""} ${
-          (profile as any)?.family_name ?? ""
-        }`.trim() ||
-          null);
+      const first_name = (profile as any)?.given_name ?? null;
+      const last_name = (profile as any)?.family_name ?? null;
 
       if (!id) return false;
 
+      // MODIFICAT: Actualizeaza interogarea SQL pentru a folosi noile coloane
       await pg.query(
-        `INSERT INTO users (id, email, username, name)
-         VALUES ($1, $2, $3, $4)
+        `INSERT INTO users (id, email, username, first_name, last_name)
+         VALUES ($1, $2, $3, $4, $5)
          ON CONFLICT (id) DO UPDATE
-           SET email = EXCLUDED.email,
-               username = EXCLUDED.username,
-               name = EXCLUDED.name`,
-        [id, email, username, name]
+         SET email = EXCLUDED.email,
+         username = EXCLUDED.username,
+         first_name = EXCLUDED.first_name,
+         last_name = EXCLUDED.last_name`,
+        [id, email, username, first_name, last_name] // MODIFICAT: Trimite noii parametri
       );
 
       return true;
@@ -55,14 +53,12 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, account, profile }) {
       console.log("----------------------------------------------");
       console.log("jwt callback", token, account, profile);
-      console.log("----------------------------------------------");
-      // pune sub in token
+      console.log("----------------------------------------------"); // pune sub in token
       if (account && profile) {
         const decoded = jwtDecode(account.access_token!);
         token.sub = account.providerAccountId ?? token.sub;
-        token.id_token = account.id_token;
-        // @ts-ignore
-        token.role = decoded.resource_access[`stefan`]?.roles ?? []; // rolul ( daca exista roles bn, daca nu -> callback)
+        token.id_token = account.id_token; // @ts-ignore
+        token.role = decoded.realm_access?.roles ?? []; // rolul ( daca exista roles bn, daca nu -> callback)
 
         (token as any).username =
           (profile as any).preferred_username ??

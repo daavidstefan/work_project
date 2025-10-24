@@ -231,7 +231,7 @@ export default function ProjectDetails({
 
   return (
     <div className="grid gap-6 p-6 h-[93vh] lg:grid-cols-[40%_58.4%] items-stretch">
-      <Card className="lg:col-span-1 h-full overflow-y-auto overflow-x-hidden">
+      <Card className="flex-[1] min-h-0 overflow-auto scrollbar-none ms-overflow-style-none [&::-webkit-scrollbar]:hidden">
         <CardHeader>
           <div className="relative flex items-center justify-center py-2">
             {!isEditing && (
@@ -367,7 +367,7 @@ export default function ProjectDetails({
       {/* lista features + sectiunea de generate key */}
       <div className="flex flex-col gap-6 h-full min-h-0">
         {/* lista features */}
-        <Card className="flex-[2] min-h-0 overflow-auto">
+        <Card className="flex-[1] min-h-0 overflow-auto scrollbar-none ms-overflow-style-none [&::-webkit-scrollbar]:hidden">
           <CardHeader className="relative flex items-center justify-center py-2">
             <CardTitle className="text-lg">Servicii</CardTitle>
 
@@ -439,14 +439,14 @@ export default function ProjectDetails({
                   "
                 >
                   <colgroup>
-                    <col className="w-1/2" />
-                    <col className="w-1/2" />
+                    <col />
+                    <col className="w-[100px]" />
                   </colgroup>
 
                   <TableHeader className="sticky top-0 bg-background">
                     <TableRow>
-                      <TableHead className="w-1/2">Denumire</TableHead>
-                      <TableHead className="w-1/2">Alege</TableHead>
+                      <TableHead>Denumire</TableHead>
+                      <TableHead className="w-[100px]">Alege</TableHead>
                     </TableRow>
                   </TableHeader>
 
@@ -461,7 +461,9 @@ export default function ProjectDetails({
                           onClick={() => toggle(f.id, !checked)}
                         >
                           <TableCell className="w-1/2">
-                            <div className="font-medium">{f.label}</div>
+                            <div className="font-medium break-words whitespace-normal">
+                              {f.label}
+                            </div>
                           </TableCell>
 
                           <TableCell className="w-1/2 text-right">
@@ -470,6 +472,7 @@ export default function ProjectDetails({
                               onClick={(e) => e.stopPropagation()}
                             >
                               <Checkbox
+                                className="cursor-pointer"
                                 checked={checked}
                                 onCheckedChange={(v) =>
                                   toggle(f.id, Boolean(v))
@@ -489,7 +492,7 @@ export default function ProjectDetails({
         </Card>
 
         {/* sectiunea de generate key */}
-        <Card className="flex-[1] min-h-0 overflow-auto">
+        <Card className="flex-[1] min-h-0 overflow-auto scrollbar-none ms-overflow-style-none [&::-webkit-scrollbar]:hidden">
           <CardHeader className="relative flex items-center justify-center py-2">
             <CardTitle className="absolute left-1/2 -translate-x-1/2 text-lg">
               Obține cheia
@@ -513,9 +516,11 @@ export default function ProjectDetails({
                         <Badge
                           key={f.id}
                           variant="outline"
-                          className="inline-flex items-center gap-1 text-muted-foreground pl-2 pr-1"
+                          className="inline-flex items-center gap-1 text-muted-foreground pl-2 pr-1 min-w-0 whitespace-normal h-auto"
                         >
-                          <span>{f.label}</span>
+                          <span className="min-w-0 break-all whitespace-normal">
+                            {f.label}
+                          </span>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <button

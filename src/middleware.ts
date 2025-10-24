@@ -11,6 +11,6 @@ export default withAuth({
 export const config = {
   matcher: [
     // protejeaza tot ce NU e /, /login, api/auth și static
-    "/((?!$|login|api/auth|_next/static|_next/image|favicon.ico|assets|.*\\..*).+)",
+    "/((?!$|login|devlogin|api/auth|_next/static|_next/image|favicon.ico|assets|.*\\..*).+)",
   ],
 };

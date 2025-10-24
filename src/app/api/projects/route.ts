@@ -41,7 +41,13 @@ export async function POST(req: NextRequest) {
   try {
     // autor
     const userRes = await client.query(
-      `SELECT name, username, email FROM users WHERE id = $1 LIMIT 1`,
+      `SELECT 
+        NULLIF(CONCAT_WS(' ', first_name, last_name), '') AS name, 
+        username, 
+        email 
+        FROM users 
+        WHERE id = $1 
+        LIMIT 1`,
       [userId]
     );
     if (userRes.rowCount === 0) {
@@ -50,6 +56,7 @@ export async function POST(req: NextRequest) {
         { status: 403 }
       );
     }
+
     const createdBy =
       userRes.rows[0].name ??
       userRes.rows[0].username ??

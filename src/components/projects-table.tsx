@@ -239,7 +239,7 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
 
         <Separator />
 
-        <CardContent className="p-0 flex-1 overflow-y-auto">
+        <CardContent className="flex-1 flex flex-col overflow-y-auto scrollbar-none ms-overflow-style-none [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_bottom,transparent_0%,black_1.5rem,black_calc(100%_-_1.5rem),transparent_100%)]">
           <TooltipProvider delayDuration={200}>
             <div className="p-6">
               <Table className="table-fixed w-full">
@@ -292,7 +292,9 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
                   {projects.map((p) => (
                     <TableRow key={p.id}>
                       <TableCell className="text-left">{p.id}</TableCell>
-                      <TableCell className="text-left">{p.name}</TableCell>
+                      <TableCell className="text-left">
+                        <div className="truncate max-w-[35ch]">{p.name}</div>
+                      </TableCell>
                       <TableCell className="text-left">
                         {p.created_by}
                       </TableCell>
@@ -319,10 +321,6 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
             </div>
           </TooltipProvider>
         </CardContent>
-
-        <CardFooter className="text-sm text-muted-foreground justify-center">
-          Lista proiectelor disponibile.
-        </CardFooter>
       </Card>
     </div>
   );

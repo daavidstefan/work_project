@@ -17,7 +17,8 @@ type AccountDetails = {
   id: number;
   email: string;
   username: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   created_at: string;
 };
 
@@ -27,17 +28,9 @@ export default async function MyProjectsPage() {
   if (!userSub) return <div className="p-6">Nu s-a găsit sub-id.</div>;
 
   const { rows: details } = await pg.query<AccountDetails>(
-    `SELECT id, email, username, name, created_at
+    `SELECT id, email, username, first_name, last_name, created_at
      FROM users
      WHERE id = $1`,
-    [userSub]
-  );
-
-  const { rows: projects } = await pg.query<ProjectRow>(
-    `SELECT id, name, created_at, slug
-     FROM projects
-     WHERE author_sub_id = $1
-     ORDER BY created_at DESC`,
     [userSub]
   );
 

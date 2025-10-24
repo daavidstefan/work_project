@@ -2,7 +2,13 @@
 
 "use client";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -31,7 +37,7 @@ export default function AddNewProject() {
   const [features, setFeatures] = useState<Feature[]>([]);
   const [featInput, setFeatInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const featRef = useRef<HTMLInputElement>(null);
+  const featRef = useRef<HTMLTextAreaElement>(null);
 
   const addFeature = () => {
     const label = featInput.trim();
@@ -112,20 +118,28 @@ export default function AddNewProject() {
 
   return (
     <div className="p-6">
-      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] overflow-y-auto p-6">
+      <Card className="lg:col-span-1 lg:col-start-2 justify-self-center w-[calc(65vw-3rem)] h-[calc(92vh-3rem)] p-6 flex flex-col">
+        {" "}
         <CardHeader>
           <div className="h-full flex flex-col items-center justify-center text-center gap-2">
             <CardTitle className="text-lg">Adaugă un proiect nou</CardTitle>
           </div>
         </CardHeader>
         <Separator />
-        <CardContent>
+        <CardContent className="flex-1 flex flex-col overflow-y-auto scrollbar-none ms-overflow-style-none [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_bottom,transparent_0%,black_1.5rem,black_calc(100%_-_1.5rem),transparent_100%)]">
+          {" "}
           <div className="p-2">
-            <Input
+            <Textarea
+              rows={1}
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                e.currentTarget.style.height = "auto";
+                e.currentTarget.style.height =
+                  e.currentTarget.scrollHeight + "px";
+              }}
               placeholder="Introdu titlul proiectului..."
-              className="w-full rounded-md border px-3 py-2 text-sm outline-none"
+              className="w-full rounded-md border px-3 py-2 text-sm outline-none resize-none overflow-hidden"
             />
             <div
               className={`text-sm mt-1 ${
@@ -157,17 +171,27 @@ export default function AddNewProject() {
             </div>
           </div>
           <div className="p-2 flex items-center gap-2">
-            <Input
+            <Textarea
               ref={featRef}
+              rows={1}
               value={featInput}
-              onChange={(e) => setFeatInput(e.target.value)}
+              onChange={(e) => {
+                setFeatInput(e.target.value);
+                e.currentTarget.style.height = "auto";
+                e.currentTarget.style.height =
+                  e.currentTarget.scrollHeight + "px";
+              }}
               onKeyDown={(e) =>
                 e.key === "Enter" && (e.preventDefault(), addFeature())
               }
               placeholder="Adaugă un serviciu..."
-              className="flex-1 rounded-md border px-3 py-2 text-sm outline-none"
+              className="flex-1 rounded-md border px-3 py-2 text-sm outline-none resize-none overflow-hidden"
             />
-            <Button onClick={addFeature}>Adaugă</Button>
+          </div>
+          <div className="flex justify-center my-2">
+            <Button onClick={addFeature} size="sm">
+              Adaugă
+            </Button>
           </div>
           <div className="p-2">
             <Card>
@@ -183,9 +207,11 @@ export default function AddNewProject() {
                       <Badge
                         key={f.key}
                         variant="outline"
-                        className="inline-flex items-center gap-1 text-muted-foreground pl-2 pr-1"
+                        className="inline-flex items-center gap-1 text-muted-foreground pl-2 pr-1 min-w-0 whitespace-normal h-auto"
                       >
-                        <span>{f.label}</span>
+                        <span className="min-w-0 break-all whitespace-normal">
+                          {f.label}
+                        </span>
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -209,12 +235,18 @@ export default function AddNewProject() {
             </Card>
           </div>
         </CardContent>
-        <Separator />
-        <div className="flex justify-center">
-          <Button onClick={pushToDatabase} disabled={loading} variant="success">
+        <Separator className="!h-[1.5px]" />
+        <CardFooter className="justify-center">
+          <Button
+            onClick={pushToDatabase}
+            disabled={loading}
+            variant="success"
+            size="sm"
+            className="cursor-pointer"
+          >
             {loading ? "Se salvează..." : "Adaugă proiectul"}
           </Button>
-        </div>
+        </CardFooter>
       </Card>
     </div>
   );

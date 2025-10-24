@@ -227,9 +227,9 @@ export default function NavigationBar() {
 
               <Link
                 className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-accent"
-                href=""
+                href="/contactdetails"
                 onClick={() => {
-                  toast.error("Zonă în construcție...");
+                  //toast.error("Zonă în construcție...");
                   setOpen(false);
                 }}
               >
