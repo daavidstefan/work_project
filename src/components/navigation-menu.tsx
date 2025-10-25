@@ -48,12 +48,34 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const NAVBAR_H = 56;
+function getPriorityRole(
+  roles: string[] | undefined | null
+): "admin" | "developer" | "client" | null {
+  if (!Array.isArray(roles) || roles.length === 0) {
+    return null;
+  }
+
+  if (roles.includes("admin")) {
+    return "admin";
+  }
+
+  if (roles.includes("developer")) {
+    return "developer";
+  }
+
+  if (roles.includes("client")) {
+    return "client";
+  }
+
+  return null;
+}
 
 export default function NavigationBar() {
   const pathname = usePathname();
   if (pathname === "/login") return null;
   const { data: session, status } = useSession();
   const username = session?.user?.name;
+  const userRole = getPriorityRole(session?.user?.role);
   const [open, setOpen] = useState(false);
 
   // salveaza ora de login
@@ -268,8 +290,10 @@ export default function NavigationBar() {
 
         <div className="ml-auto flex items-center gap-2">
           {status === "authenticated" && username && (
-            <span className="px-3 py-2">{username}</span>
+            <span className="px-1 py-2">{username}</span>
           )}
+          <h1 className="py-2">|</h1>
+          <h1 className="px-1 py-2">{userRole}</h1>
           {status === "authenticated" && (
             <NavbarButton variant="destructive" onClick={handleLogout}>
               Deconectare

@@ -4,7 +4,16 @@ import { NextAuthOptions } from "next-auth";
 import KeycloakProvider from "next-auth/providers/keycloak";
 import { pg } from "@@/lib/db";
 import { jwtDecode } from "jwt-decode";
-// import { console } from "inspector";
+import { JwtPayload } from "jwt-decode";
+
+interface KeycloakJwtPayload extends JwtPayload {
+  realm_access?: {
+    roles: string[];
+  };
+  // Poți adăuga și alte câmpuri pe care le aștepți, ex:
+  preferred_username?: string;
+  // ... etc
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -55,9 +64,9 @@ export const authOptions: NextAuthOptions = {
       console.log("jwt callback", token, account, profile);
       console.log("----------------------------------------------"); // pune sub in token
       if (account && profile) {
-        const decoded = jwtDecode(account.access_token!);
+        const decoded = jwtDecode<KeycloakJwtPayload>(account.access_token!);
         token.sub = account.providerAccountId ?? token.sub;
-        token.id_token = account.id_token; // @ts-ignore
+        token.id_token = account.id_token ?? "";
         token.role = decoded.realm_access?.roles ?? []; // rolul ( daca exista roles bn, daca nu -> callback)
 
         (token as any).username =
@@ -72,9 +81,9 @@ export const authOptions: NextAuthOptions = {
       // expune id/username/rol in sesiune
       //console.log("----------------------------------------------");
       //console.log(token);
-      (session.user as any).id = token.sub;
+      (session.user as any).id = token.sub ?? "";
       (session.user as any).role = token.role;
-      (session as any).id_token = token.id_token;
+      (session as any).id_token = token.id_token ?? null;
       (session as any).username = (token as any).username ?? null;
       return session;
     },
