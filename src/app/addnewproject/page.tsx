@@ -126,7 +126,7 @@ export default function AddNewProject() {
           </div>
         </CardHeader>
         <Separator />
-        <CardContent className="flex-1 flex flex-col overflow-y-auto scrollbar-none ms-overflow-style-none [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_bottom,transparent_0%,black_1.5rem,black_calc(100%_-_1.5rem),transparent_100%)]">
+        <CardContent className="flex-1 flex flex-col overflow-y-auto scrollbar-none ms-overflow-style-none [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_bottom,transparent_0%,black_0.5rem,black_calc(100%_-_0.5rem),transparent_100%)]">
           {" "}
           <div className="p-2">
             <Textarea

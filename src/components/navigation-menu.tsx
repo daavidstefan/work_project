@@ -72,7 +72,12 @@ function getPriorityRole(
 
 export default function NavigationBar() {
   const pathname = usePathname();
-  if (pathname === "/login") return null;
+  if (
+    pathname === "/login" ||
+    pathname === "/devregister" ||
+    pathname === "/verifyrequest"
+  )
+    return null;
   const { data: session, status } = useSession();
   const username = session?.user?.name;
   const userRole = getPriorityRole(session?.user?.role);
@@ -278,6 +283,7 @@ export default function NavigationBar() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
+
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link href="/addnewproject" className="px-3 py-2">
@@ -285,6 +291,16 @@ export default function NavigationBar() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
+
+            {userRole === "admin" && (
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link href="/devrequests" className="px-3 py-2">
+                    Cereri de înregistrare
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
 
