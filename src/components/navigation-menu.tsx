@@ -49,28 +49,6 @@ import {
 
 const NAVBAR_H = 56;
 
-function getPriorityRole(
-  roles: string[] | undefined | null
-): "admin" | "developer" | "client" | null {
-  if (!Array.isArray(roles) || roles.length === 0) {
-    return null;
-  }
-
-  if (roles.includes("admin")) {
-    return "admin";
-  }
-
-  if (roles.includes("developer")) {
-    return "developer";
-  }
-
-  if (roles.includes("client")) {
-    return "client";
-  }
-
-  return null;
-}
-
 export default function NavigationBar() {
   const pathname = usePathname();
   if (
@@ -79,9 +57,10 @@ export default function NavigationBar() {
     pathname === "/verifyrequest"
   )
     return null;
+
   const { data: session, status } = useSession();
   const username = session?.user?.name;
-  const userRole = getPriorityRole(session?.user?.role);
+  const userRole = session?.user?.role;
   const [open, setOpen] = useState(false);
 
   // salveaza ora de login
@@ -113,7 +92,7 @@ export default function NavigationBar() {
           `${process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER}/protocol/openid-connect/logout` +
           `?id_token_hint=${encodeURIComponent(idToken)}` +
           `&post_logout_redirect_uri=${encodeURIComponent(
-            `${window.location.origin}/login`
+            `${window.location.origin}/login`,
           )}`;
 
         await fetch(url, { credentials: "include" }).catch(() => {});
