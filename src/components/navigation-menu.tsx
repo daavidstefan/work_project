@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const NAVBAR_H = 56;
+
 function getPriorityRole(
   roles: string[] | undefined | null
 ): "admin" | "developer" | "client" | null {
