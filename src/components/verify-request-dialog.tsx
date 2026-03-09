@@ -19,9 +19,8 @@ import { toast } from "sonner";
 export default function VerifyRequestDialog() {
   const [requestId, setRequestId] = useState("");
   const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false); // Pentru a controla deschiderea
+  const [open, setOpen] = useState(false);
 
-  // Funcția pe care o vom dezvolta mai târziu
   const handleVerify = async () => {
     if (!requestId.trim()) {
       toast.error("Trebuie să introduci un ID de cerere.");
@@ -30,24 +29,20 @@ export default function VerifyRequestDialog() {
 
     setLoading(true);
 
-    // Aici va veni logica ta de fetch...
     console.log("Se verifică ID-ul:", requestId.trim());
     toast.info(`Verificăm statusul pentru ${requestId.trim()}...`);
 
-    // Simulare de rețea (de șters mai târziu)
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     setLoading(false);
-    setOpen(false); // Închide dialogul după acțiune
+    setOpen(false);
 
-    // Momentan, doar afișăm un mesaj de succes
     toast.success("Verificare simulată. Vezi consola pentru ID.");
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {/* Acesta este butonul care deschide dialogul */}
         <Button variant="outline">Verifică statusul cererii</Button>
       </DialogTrigger>
 

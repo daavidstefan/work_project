@@ -62,6 +62,7 @@ export default function NavigationBar() {
   const username = session?.user?.name;
   const userRole = session?.user?.role;
   const [open, setOpen] = useState(false);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
 
   // salveaza ora de login
   useEffect(() => {
@@ -73,42 +74,88 @@ export default function NavigationBar() {
     }
     // localStorage.setItem("loginAt", Date.now().toString());
   }, []);
+
+  useEffect(() => {
+    if (status !== "authenticated" || userRole !== "admin") {
+      setPendingRequestsCount(0);
+      return;
+    }
+
+    const loadPendingRequestsCount = async () => {
+      try {
+        const res = await fetch("/api/dev-requests/pending-count", {
+          cache: "no-store",
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch pending requests count");
+        }
+
+        const data = await res.json();
+        setPendingRequestsCount(Number(data.count ?? 0));
+      } catch (error) {
+        console.error(error);
+        setPendingRequestsCount(0);
+      }
+    };
+
+    loadPendingRequestsCount();
+  }, [status, userRole]);
   // console.log(
   //   "@@@@@@@@@@@@@@@@@@@@@@@",
   //   process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER
   // );
-  const handleLogout = async () => {
-    localStorage.removeItem("loginAt");
-    const idToken = (session as any)?.id_token as string | undefined;
-    try {
-      // console.log("aaaaaaaaaaaaaaa", idToken, JSON.stringify(session));
-      // console.log(
-      //   "------------------",
-      //   process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER
-      // );
-      // curata sesiunea sso (sau cel putin incerc)
-      if (idToken && process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER) {
-        const url =
-          `${process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER}/protocol/openid-connect/logout` +
-          `?id_token_hint=${encodeURIComponent(idToken)}` +
-          `&post_logout_redirect_uri=${encodeURIComponent(
-            `${window.location.origin}/login`,
-          )}`;
+  // ------------------------------------
+  // const handleLogout = async () => {
+  //   localStorage.removeItem("loginAt");
+  //   const idToken = (session as any)?.id_token as string | undefined;
+  //   try {
+  //     // console.log("aaaaaaaaaaaaaaa", idToken, JSON.stringify(session));
+  //     // console.log(
+  //     //   "------------------",
+  //     //   process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER
+  //     // );
+  //     // curata sesiunea sso (sau cel putin incerc)
+  //     if (idToken && process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER) {
+  //       const url =
+  //         `${process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER}/protocol/openid-connect/logout` +
+  //         `?id_token_hint=${encodeURIComponent(idToken)}` +
+  //         `&post_logout_redirect_uri=${encodeURIComponent(
+  //           `${window.location.origin}/login`,
+  //         )}`;
 
-        await fetch(url, { credentials: "include" }).catch(() => {});
-      }
-      // logout din nextauth
+  //       await fetch(url, { credentials: "include" }).catch(() => {});
+  //     }
+  //     // logout din nextauth
+  //     await signOut({ redirect: false });
+  //   } finally {
+  //     localStorage.removeItem("loginAt");
+  //     // sterge cookies
+  //     document.cookie.split(";").forEach((cookie) => {
+  //       const eqPos = cookie.indexOf("=");
+  //       const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
+  //       document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+  //     });
+  //     // redirect /login
+  //     window.location.href = "/login";
+  //   }
+  // };
+  // ---------------------------
+
+  const handleLogout = async () => {
+    const idToken = (session as any)?.id_token;
+
+    if (idToken && process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER) {
+      const logoutUrl =
+        `${process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER}/protocol/openid-connect/logout` +
+        `?id_token_hint=${encodeURIComponent(idToken)}` +
+        `&post_logout_redirect_uri=${encodeURIComponent(window.location.origin + "/login")}`;
+
       await signOut({ redirect: false });
-    } finally {
-      localStorage.removeItem("loginAt");
-      // sterge cookies
-      document.cookie.split(";").forEach((cookie) => {
-        const eqPos = cookie.indexOf("=");
-        const name = eqPos > -1 ? cookie.slice(0, eqPos).trim() : cookie.trim();
-        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-      });
-      // redirect /login
-      window.location.href = "/login";
+
+      window.location.href = logoutUrl;
+    } else {
+      await signOut({ callbackUrl: "/login" });
     }
   };
 
@@ -275,8 +322,18 @@ export default function NavigationBar() {
             {userRole === "admin" && (
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/devrequests" className="px-3 py-2">
+                  <Link
+                    href="/devrequests"
+                    className="relative px-3 py-2 inline-flex items-center"
+                  >
                     Cereri de înregistrare
+                    {pendingRequestsCount > 0 && (
+                      <span className="absolute -top-0 -right-2 min-w-4 h-4 px-1 rounded-full bg-red-600 text-white text-[10px] font-semibold flex items-center justify-center leading-none">
+                        {pendingRequestsCount > 99
+                          ? "99+"
+                          : pendingRequestsCount}
+                      </span>
+                    )}
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>

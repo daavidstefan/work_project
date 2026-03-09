@@ -26,7 +26,7 @@ import { useSearchParams } from "next/navigation";
 
 type RequestData = {
   id: string;
-  status: "pending" | "approved" | "rejected"; // Presupunem aceste statusuri
+  status: "pending" | "approved" | "rejected";
   firstname: string;
   lastname: string;
   companyname: string;
@@ -37,12 +37,10 @@ export default function VerifyRequestStatus() {
   const searchParams = useSearchParams();
   const requestId = searchParams.get("id");
 
-  // Stări pentru date, încărcare și erori
   const [data, setData] = useState<RequestData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Efect pentru a prelua datele când componenta se încarcă sau requestId se schimbă
   useEffect(() => {
     if (!requestId) {
       setError("ID-ul cererii lipsește din URL.");
@@ -51,35 +49,29 @@ export default function VerifyRequestStatus() {
     }
 
     const fetchStatus = async () => {
-      setLoading(true); // Începe încărcarea
-      setError(null); // Resetează eroarea
+      setLoading(true);
+      setError(null);
       try {
-        // Apeleză endpoint-ul API
         const response = await fetch(`/api/verify-request/${requestId}`);
 
-        // Verifică dacă răspunsul este eșuat
         if (!response.ok) {
           const errData = await response.json();
           throw new Error(errData.error || "Cererea nu a putut fi găsită.");
         }
 
-        // Parsează și setează datele
         const result: RequestData = await response.json();
         setData(result);
       } catch (err: any) {
-        // Setează starea de eroare
         setError(err.message);
         setData(null);
       } finally {
-        // Oprește încărcarea indiferent de rezultat
         setLoading(false);
       }
     };
 
     fetchStatus();
-  }, [requestId]); // Rulează din nou dacă 'requestId' se schimbă
+  }, [requestId]);
 
-  // Afișează starea de încărcare
   if (loading) {
     return (
       <div style={{ padding: "20px" }}>
@@ -88,7 +80,6 @@ export default function VerifyRequestStatus() {
     );
   }
 
-  // Afișează eroarea
   if (error) {
     return (
       <div style={{ padding: "20px", color: "red" }}>
@@ -97,7 +88,6 @@ export default function VerifyRequestStatus() {
     );
   }
 
-  // Afișează dacă nu s-au găsit date
   if (!data) {
     return (
       <div style={{ padding: "20px" }}>
@@ -106,7 +96,6 @@ export default function VerifyRequestStatus() {
     );
   }
 
-  // Afișează cardul cu date
   return (
     <div
       style={{

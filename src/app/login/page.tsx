@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const handleLogin = () => {
-    signIn("keycloak", { callbackUrl: "/listofprojects" });
+    signIn("keycloak", { callbackUrl: "/listofprojects" }, { prompt: "login" });
+    // vezi ca acum din cauza acestui prompt, dupa logout trebuie
+    // neaparat sa intri cu acelasi cont, nu ai si optiunea de register, mai necesita atentie !!!
   };
 
   return (

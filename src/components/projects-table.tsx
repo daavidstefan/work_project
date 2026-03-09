@@ -27,6 +27,7 @@ import {
   ArrowDownZA,
   ClockArrowUp,
   ClockArrowDown,
+  FilterX,
 } from "lucide-react";
 
 import {
@@ -67,7 +68,7 @@ const fmtDate = (v: string | Date | null) => {
 const tipText = (
   key: "id" | "name" | "created_at",
   sort: string,
-  order: string
+  order: string,
 ) => {
   if (key === "id")
     return sort === "id"
@@ -117,7 +118,7 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
   const [localAuthor, setLocalAuthor] = useState(authorQ);
 
   const hasFilters = Boolean(
-    sp.get("name") || sp.get("author") || sp.get("sort") || sp.get("order")
+    sp.get("name") || sp.get("author") || sp.get("sort") || sp.get("order"),
   );
 
   // comuta sortarea
@@ -188,7 +189,7 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
                   e.key === "Enter" &&
                   update(
                     { name: localName || null, author: localAuthor || null },
-                    "push"
+                    "push",
                   )
                 }
               />
@@ -201,7 +202,7 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
                   e.key === "Enter" &&
                   update(
                     { name: localName || null, author: localAuthor || null },
-                    "push"
+                    "push",
                   )
                 }
               />
@@ -209,11 +210,11 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
                 onClick={() =>
                   update(
                     { name: localName || null, author: localAuthor || null },
-                    "push"
+                    "push",
                   )
                 }
                 variant="outline"
-                size="lg"
+                size="sm"
               >
                 Căutare
               </Button>
@@ -224,13 +225,14 @@ export default function ProjectsTable({ projects }: { projects: Project[] }) {
                   setLocalAuthor("");
                   update(
                     { name: null, author: null, sort: null, order: null },
-                    "push"
+                    "push",
                   );
                 }}
                 variant="destructive"
                 className="cursor-pointer"
-                size="lg"
+                size="sm"
               >
+                <FilterX className="size-4" />
                 Șterge filtrele
               </Button>
             </div>
