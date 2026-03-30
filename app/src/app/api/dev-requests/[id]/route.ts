@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@@/lib/auth";
 import { pg } from "@@/lib/db";
+import { sendDeveloperApprovalEmail } from "@@/lib/mailer";
 
 type AllowedStatus = "approved" | "rejected";
 
@@ -156,6 +157,21 @@ export async function PATCH(
 
     const registrationUrl = `${appUrl}/complete-dev-registration?token=${invitation.token}`;
 
+    let warning: string | null = null;
+
+    try {
+      await sendDeveloperApprovalEmail({
+        to: updatedRequest.email,
+        firstName: updatedRequest.firstname,
+        companyName: updatedRequest.companyname,
+        registrationUrl,
+        expiresAt: invitation.expires_at,
+      });
+    } catch (emailError) {
+      console.error("send developer approval email failed:", emailError);
+      warning = "Cererea a fost aprobată, dar emailul nu a putut fi trimis.";
+    }
+
     return NextResponse.json(
       {
         request: updatedRequest,
@@ -163,6 +179,7 @@ export async function PATCH(
           ...invitation,
           registrationUrl,
         },
+        ...(warning ? { warning } : {}),
       },
       { status: 200 },
     );

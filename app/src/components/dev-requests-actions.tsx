@@ -33,11 +33,15 @@ export default function DevRequestActions({
         throw new Error(data?.error || "Nu am putut actualiza cererea.");
       }
 
-      toast.success(
-        status === "approved"
-          ? "Cererea a fost aprobată."
-          : "Cererea a fost respinsă.",
-      );
+      if (data?.warning) {
+        toast.warning(data.warning);
+      } else {
+        toast.success(
+          status === "approved"
+            ? "Cererea a fost aprobată."
+            : "Cererea a fost respinsă.",
+        );
+      }
 
       router.refresh();
     } catch (error: any) {
