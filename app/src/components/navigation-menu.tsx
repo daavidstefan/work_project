@@ -54,7 +54,8 @@ export default function NavigationBar() {
   if (
     pathname === "/login" ||
     pathname === "/devregister" ||
-    pathname === "/verifyrequest"
+    pathname === "/verifyrequest" ||
+    pathname === "/complete-dev-registration"
   )
     return null;
 
